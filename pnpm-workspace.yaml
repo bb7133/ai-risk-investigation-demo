@@ -1,3 +1,7 @@
 packages:
   - "frontend"
   - "server"
+
+ignoredBuiltDependencies:
+  - sharp
+  - unrs-resolver
