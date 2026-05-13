@@ -1,0 +1,159 @@
+/* CLAIMS — light-mode tokens. Stripe-clean fintech, default light. */
+
+:root {
+  /* Surfaces — warm off-white base, pure white panels */
+  --bg-0: #f7f7f4;          /* page background, warm off-white */
+  --bg-1: #ffffff;          /* panel background */
+  --bg-2: #fafaf7;           /* nested panel / hover */
+  --bg-3: #f0f0ec;           /* row hover / pressed */
+  --bg-overlay: rgba(10, 16, 28, 0.42);
+
+  /* Borders — hairline, very subtle */
+  --border-subtle: #ececea;
+  --border: #e3e4e2;
+  --border-strong: #cdd0d4;
+
+  /* Text — Stripe-esque slate-navy stack */
+  --text-1: #0a1f44;        /* primary */
+  --text-2: #515f7a;        /* secondary */
+  --text-3: #7a849a;        /* tertiary, captions */
+  --text-4: #a3aab8;        /* disabled / placeholders */
+
+  /* Agent lane colors — lower chroma so they sit on white without shouting */
+  --c-customer: oklch(0.58 0.13 230);   /* indigo-blue — Customer History */
+  --c-merchant: oklch(0.55 0.15 295);   /* violet — Merchant Analysis */
+  --c-network:  oklch(0.62 0.16 50);    /* warm orange — Network Graph */
+  --c-policy:   oklch(0.55 0.13 160);   /* deep green — Policy Lookup */
+
+  /* Semantic */
+  --sig-active: oklch(0.55 0.16 245);   /* blue — agent working */
+  --sig-warn:   oklch(0.66 0.16 65);    /* amber — needs attention */
+  --sig-danger: oklch(0.58 0.20 25);    /* red — high-risk */
+  --sig-ok:     oklch(0.58 0.13 155);   /* green — resolved */
+  --sig-idle:   #a3aab8;
+
+  /* Lane tints — pale wash for backgrounds */
+  --tint-customer: color-mix(in oklab, oklch(0.58 0.13 230) 7%, white);
+  --tint-merchant: color-mix(in oklab, oklch(0.55 0.15 295) 7%, white);
+  --tint-network:  color-mix(in oklab, oklch(0.62 0.16 50)  7%, white);
+  --tint-policy:   color-mix(in oklab, oklch(0.55 0.13 160) 7%, white);
+
+  /* Type — Geist (per type direction selection — easy to swap to Plex later) */
+  --font-sans: 'Inter', -apple-system, system-ui, BlinkMacSystemFont, sans-serif;
+  --font-mono: 'JetBrains Mono', 'IBM Plex Mono', ui-monospace, monospace;
+
+  /* Radii */
+  --r-1: 4px;
+  --r-2: 6px;
+  --r-3: 10px;
+
+  /* Shadows — extremely subtle, Stripe-style */
+  --shadow-1: 0 1px 1px rgba(10, 31, 68, 0.04), 0 1px 2px rgba(10, 31, 68, 0.05);
+  --shadow-2: 0 1px 2px rgba(10, 31, 68, 0.05), 0 4px 14px rgba(10, 31, 68, 0.06);
+  --shadow-pop: 0 12px 40px rgba(10, 31, 68, 0.18), 0 0 0 1px rgba(10, 31, 68, 0.05);
+}
+
+/* IBM Plex token override class */
+.font-plex {
+  --font-sans: 'IBM Plex Sans', system-ui, sans-serif;
+  --font-mono: 'IBM Plex Mono', ui-monospace, monospace;
+}
+
+.claims-root {
+  font-family: var(--font-sans);
+  color: var(--text-1);
+  background: var(--bg-0);
+  font-feature-settings: 'cv11', 'ss01', 'ss03';
+  font-variant-numeric: tabular-nums;
+  -webkit-font-smoothing: antialiased;
+  letter-spacing: -0.005em;
+}
+
+.claims-root *,
+.claims-root *::before,
+.claims-root *::after {
+  box-sizing: border-box;
+}
+
+.claims-root .mono {
+  font-family: var(--font-mono);
+  font-feature-settings: 'zero', 'ss02';
+  letter-spacing: 0;
+}
+
+/* Agent dot pulse — soft halo */
+@keyframes claims-pulse {
+  0%, 100% { transform: scale(1); opacity: 1; }
+  50%      { transform: scale(1.6); opacity: 0; }
+}
+.claims-root .pulse-halo::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: inherit;
+  animation: claims-pulse 1.6s ease-out infinite;
+  z-index: -1;
+  pointer-events: none;
+}
+
+@keyframes claims-dot-pulse {
+  0%, 100% { opacity: 1; }
+  50%      { opacity: 0.35; }
+}
+.claims-root .pulse-dot {
+  animation: claims-dot-pulse 1.6s ease-in-out infinite;
+}
+
+/* Streaming caret */
+@keyframes claims-blink {
+  0%, 49%   { opacity: 1; }
+  50%, 100% { opacity: 0; }
+}
+.claims-root .stream-caret {
+  display: inline-block;
+  width: 6px;
+  height: 11px;
+  background: currentColor;
+  vertical-align: -1px;
+  margin-left: 2px;
+  animation: claims-blink 1s steps(1) infinite;
+}
+
+/* Row enter + fact write */
+@keyframes claims-rowin {
+  from { opacity: 0; transform: translateY(3px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+.claims-root .row-in {
+  animation: claims-rowin 0.35s ease-out;
+}
+
+@keyframes claims-flash {
+  0%   { background: color-mix(in oklab, var(--sig-active) 18%, transparent); }
+  100% { background: transparent; }
+}
+.claims-root .flash {
+  animation: claims-flash 1.4s ease-out;
+}
+
+/* Connection line dash flow */
+@keyframes claims-flow {
+  to { stroke-dashoffset: -16; }
+}
+.claims-root .flow-line {
+  stroke-dasharray: 4 4;
+  animation: claims-flow 1.2s linear infinite;
+}
+
+/* Push-notification slide-in */
+@keyframes claims-toastin {
+  from { opacity: 0; transform: translateY(-10px) scale(0.97); }
+  to   { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+/* Scrollbar — thin */
+.claims-root *::-webkit-scrollbar { width: 6px; height: 6px; }
+.claims-root *::-webkit-scrollbar-thumb { background: rgba(10, 31, 68, 0.12); border-radius: 3px; }
+.claims-root *::-webkit-scrollbar-thumb:hover { background: rgba(10, 31, 68, 0.22); }
+.claims-root *::-webkit-scrollbar-track { background: transparent; }
