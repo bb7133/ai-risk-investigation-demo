@@ -1,0 +1,176 @@
+{
+  "customers": [
+    {
+      "id": "cus_1001",
+      "name": "Mina Park",
+      "riskTier": "standard",
+      "country": "KR",
+      "createdAt": "2024-09-12T03:18:00Z",
+      "medianPayment": 82
+    },
+    {
+      "id": "cus_1002",
+      "name": "Noah Smith",
+      "riskTier": "watchlist",
+      "country": "US",
+      "createdAt": "2025-12-02T11:08:00Z",
+      "medianPayment": 39
+    },
+    {
+      "id": "cus_1003",
+      "name": "Akari Sato",
+      "riskTier": "standard",
+      "country": "JP",
+      "createdAt": "2023-05-22T12:10:00Z",
+      "medianPayment": 164
+    },
+    {
+      "id": "cus_1004",
+      "name": "Hannah Lee",
+      "riskTier": "trusted",
+      "country": "SG",
+      "createdAt": "2021-10-18T09:35:00Z",
+      "medianPayment": 220
+    }
+  ],
+  "merchants": [
+    {
+      "id": "mer_2001",
+      "name": "Blue Lantern Goods",
+      "category": "consumer retail",
+      "country": "US",
+      "riskScore": 36
+    },
+    {
+      "id": "mer_2002",
+      "name": "Neon Harbor Exchange",
+      "category": "digital assets",
+      "country": "HK",
+      "riskScore": 91
+    },
+    {
+      "id": "mer_2003",
+      "name": "Sakura Travel Desk",
+      "category": "travel",
+      "country": "JP",
+      "riskScore": 44
+    },
+    {
+      "id": "mer_2004",
+      "name": "Aurora Game Credits",
+      "category": "gaming",
+      "country": "SG",
+      "riskScore": 84
+    }
+  ],
+  "transactions": [
+    {
+      "id": "txn_9001",
+      "customerId": "cus_1002",
+      "merchantId": "mer_2002",
+      "amount": 780,
+      "currency": "USD",
+      "status": "held",
+      "occurredAt": "2026-05-12T02:42:00Z"
+    },
+    {
+      "id": "txn_9002",
+      "customerId": "cus_1001",
+      "merchantId": "mer_2003",
+      "amount": 126,
+      "currency": "USD",
+      "status": "review",
+      "occurredAt": "2026-05-12T03:11:00Z"
+    },
+    {
+      "id": "txn_9003",
+      "customerId": "cus_1003",
+      "merchantId": "mer_2004",
+      "amount": 960,
+      "currency": "USD",
+      "status": "held",
+      "occurredAt": "2026-05-12T04:03:00Z"
+    }
+  ],
+  "cases": [
+    {
+      "id": "case_5001",
+      "transactionId": "txn_9001",
+      "priority": "P1",
+      "status": "open",
+      "reason": "High-risk merchant, amount is 20x customer median, and device linked to prior chargeback accounts.",
+      "createdAt": "2026-05-12T02:44:00Z"
+    },
+    {
+      "id": "case_5002",
+      "transactionId": "txn_9002",
+      "priority": "P3",
+      "status": "open",
+      "reason": "Cross-border travel merchant. Needs policy and history verification.",
+      "createdAt": "2026-05-12T03:13:00Z"
+    },
+    {
+      "id": "case_5003",
+      "transactionId": "txn_9003",
+      "priority": "P2",
+      "status": "open",
+      "reason": "Gaming credits merchant with elevated risk and unusual amount.",
+      "createdAt": "2026-05-12T04:05:00Z"
+    }
+  ],
+  "evidence": [
+    {
+      "id": "ev_7001",
+      "caseId": "case_5001",
+      "kind": "device",
+      "title": "Device fingerprint overlap",
+      "uri": "tidb://evidence/case_5001/device",
+      "summary": "Device hash was seen on two chargeback cases in the last 60 days."
+    },
+    {
+      "id": "ev_7002",
+      "caseId": "case_5001",
+      "kind": "merchant",
+      "title": "Merchant payout cluster",
+      "uri": "tidb://evidence/case_5001/merchant",
+      "summary": "Merchant shares payout account with three suspended merchants."
+    },
+    {
+      "id": "ev_7003",
+      "caseId": "case_5003",
+      "kind": "velocity",
+      "title": "Payment velocity",
+      "uri": "tidb://evidence/case_5003/velocity",
+      "summary": "Customer made four gaming-credit purchases in 38 minutes."
+    }
+  ],
+  "network": [
+    { "source": "cus_1002", "target": "dev_3108", "type": "uses_device", "risk": 78 },
+    { "source": "dev_3108", "target": "acct_8002", "type": "linked_account", "risk": 86 },
+    { "source": "acct_8002", "target": "mer_2002", "type": "merchant_payout", "risk": 91 },
+    { "source": "acct_8002", "target": "mer_suspended_12", "type": "prior_payout", "risk": 96 },
+    { "source": "cus_1003", "target": "dev_4411", "type": "uses_device", "risk": 42 },
+    { "source": "dev_4411", "target": "mer_2004", "type": "recent_purchase", "risk": 74 }
+  ],
+  "memoryEvents": [
+    {
+      "id": "mem_8101",
+      "subjectType": "customer",
+      "subjectId": "cus_1002",
+      "eventType": "prior_chargeback",
+      "content": "Customer had one chargeback accepted 42 days ago for digital-asset merchant activity.",
+      "confidence": 0.86,
+      "createdAt": "2026-03-31T13:22:00Z"
+    },
+    {
+      "id": "mem_8102",
+      "subjectType": "merchant",
+      "subjectId": "mer_2002",
+      "eventType": "shared_payout_network",
+      "content": "Merchant appeared in a payout network connected to suspended merchants.",
+      "confidence": 0.91,
+      "createdAt": "2026-05-03T16:12:00Z"
+    }
+  ]
+}
+

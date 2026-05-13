@@ -1,0 +1,28 @@
+{
+  "name": "ai-risk-investigation-demo",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev:api": "node server/index.mjs",
+    "dev:api:tidb": "node scripts/with-tidb-zero-env.mjs node server/index.mjs",
+    "dev:web": "vite --host 127.0.0.1 --port 5177",
+    "build": "vite build",
+    "preview": "vite preview --host 127.0.0.1 --port 4177",
+    "seed": "node scripts/seed.mjs",
+    "seed:paysim": "node scripts/generate-paysim-like.mjs",
+    "import:tidb": "node scripts/with-tidb-zero-env.mjs node scripts/import-tidb.mjs"
+  },
+  "dependencies": {
+    "@vitejs/plugin-react": "^5.1.0",
+    "lucide-react": "^0.555.0",
+    "mysql2": "^3.22.3",
+    "react": "^19.2.0",
+    "react-dom": "^19.2.0",
+    "typescript": "^5.9.3",
+    "vite": "^7.2.0"
+  },
+  "devDependencies": {
+    "playwright": "^1.60.0"
+  }
+}

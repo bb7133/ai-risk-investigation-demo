@@ -1,0 +1,527 @@
+id,transaction_id,priority,status,reason,created_step
+RC00000001,TX0000000001,P2,open,High-risk merchant and amount significantly above customer baseline.,1
+RC00000002,TX0000000038,P2,open,High-risk merchant and amount significantly above customer baseline.,38
+RC00000003,TX0000000075,P2,open,High-risk merchant and amount significantly above customer baseline.,75
+RC00000004,TX0000000260,P2,open,High-risk merchant and amount significantly above customer baseline.,260
+RC00000005,TX0000000455,P2,open,High-risk merchant and amount significantly above customer baseline.,455
+RC00000006,TX0000000492,P2,open,High-risk merchant and amount significantly above customer baseline.,492
+RC00000007,TX0000000613,P2,open,High-risk merchant and amount significantly above customer baseline.,613
+RC00000008,TX0000000650,P1,open,PaySim-style fraud pattern: account depletion via transfer or cash-out.,650
+RC00000009,TX0000000667,P1,open,PaySim-style fraud pattern: account depletion via transfer or cash-out.,667
+RC00000010,TX0000000808,P2,open,High-risk merchant and amount significantly above customer baseline.,64
+RC00000011,TX0000000845,P2,open,High-risk merchant and amount significantly above customer baseline.,101
+RC00000012,TX0000001030,P2,open,High-risk merchant and amount significantly above customer baseline.,286
+RC00000013,TX0000001225,P2,open,High-risk merchant and amount significantly above customer baseline.,481
+RC00000014,TX0000001262,P2,open,High-risk merchant and amount significantly above customer baseline.,518
+RC00000015,TX0000001299,P1,open,PaySim-style fraud pattern: account depletion via transfer or cash-out.,555
+RC00000016,TX0000001383,P2,open,High-risk merchant and amount significantly above customer baseline.,639
+RC00000017,TX0000001420,P1,open,PaySim-style fraud pattern: account depletion via transfer or cash-out.,676
+RC00000018,TX0000001615,P2,open,High-risk merchant and amount significantly above customer baseline.,127
+RC00000019,TX0000001800,P2,open,High-risk merchant and amount significantly above customer baseline.,312
+RC00000020,TX0000001837,P2,open,High-risk merchant and amount significantly above customer baseline.,349
+RC00000021,TX0000001995,P2,open,High-risk merchant and amount significantly above customer baseline.,507
+RC00000022,TX0000002032,P2,open,High-risk merchant and amount significantly above customer baseline.,544
+RC00000023,TX0000002069,P1,open,PaySim-style fraud pattern: account depletion via transfer or cash-out.,581
+RC00000024,TX0000002153,P2,open,High-risk merchant and amount significantly above customer baseline.,665
+RC00000025,TX0000002190,P1,open,PaySim-style fraud pattern: account depletion via transfer or cash-out.,702
+RC00000026,TX0000002385,P2,open,High-risk merchant and amount significantly above customer baseline.,153
+RC00000027,TX0000002570,P2,open,High-risk merchant and amount significantly above customer baseline.,338
+RC00000028,TX0000002607,P2,open,High-risk merchant and amount significantly above customer baseline.,375
+RC00000029,TX0000002765,P2,open,High-risk merchant and amount significantly above customer baseline.,533
+RC00000030,TX0000002769,P1,open,PaySim-style fraud pattern: account depletion via transfer or cash-out.,537
+RC00000031,TX0000002802,P2,open,High-risk merchant and amount significantly above customer baseline.,570
+RC00000032,TX0000002839,P1,open,PaySim-style fraud pattern: account depletion via transfer or cash-out.,607
+RC00000033,TX0000002923,P2,open,High-risk merchant and amount significantly above customer baseline.,691
+RC00000034,TX0000002960,P1,open,PaySim-style fraud pattern: account depletion via transfer or cash-out.,728
+RC00000035,TX0000003340,P2,open,High-risk merchant and amount significantly above customer baseline.,364
+RC00000036,TX0000003377,P2,open,High-risk merchant and amount significantly above customer baseline.,401
+RC00000037,TX0000003535,P2,open,High-risk merchant and amount significantly above customer baseline.,559
+RC00000038,TX0000003539,P1,open,PaySim-style fraud pattern: account depletion via transfer or cash-out.,563
+RC00000039,TX0000003572,P2,open,High-risk merchant and amount significantly above customer baseline.,596
+RC00000040,TX0000003609,P1,open,PaySim-style fraud pattern: account depletion via transfer or cash-out.,633
+RC00000041,TX0000003693,P2,open,High-risk merchant and amount significantly above customer baseline.,717
+RC00000042,TX0000003730,P1,open,PaySim-style fraud pattern: account depletion via transfer or cash-out.,10
+RC00000043,TX0000004110,P2,open,High-risk merchant and amount significantly above customer baseline.,390
+RC00000044,TX0000004147,P2,open,High-risk merchant and amount significantly above customer baseline.,427
+RC00000045,TX0000004305,P2,open,High-risk merchant and amount significantly above customer baseline.,585
+RC00000046,TX0000004342,P2,open,High-risk merchant and amount significantly above customer baseline.,622
+RC00000047,TX0000004379,P1,open,PaySim-style fraud pattern: account depletion via transfer or cash-out.,659
+RC00000048,TX0000004500,P1,open,PaySim-style fraud pattern: account depletion via transfer or cash-out.,36
+RC00000049,TX0000004722,P2,open,High-risk merchant and amount significantly above customer baseline.,258
+RC00000050,TX0000004880,P2,open,High-risk merchant and amount significantly above customer baseline.,416
+RC00000051,TX0000004917,P2,open,High-risk merchant and amount significantly above customer baseline.,453
+RC00000052,TX0000005075,P2,open,High-risk merchant and amount significantly above customer baseline.,611
+RC00000053,TX0000005112,P2,open,High-risk merchant and amount significantly above customer baseline.,648
+RC00000054,TX0000005149,P1,open,PaySim-style fraud pattern: account depletion via transfer or cash-out.,685
+RC00000055,TX0000005270,P1,open,PaySim-style fraud pattern: account depletion via transfer or cash-out.,62
+RC00000056,TX0000005492,P2,open,High-risk merchant and amount significantly above customer baseline.,284
+RC00000057,TX0000005641,P1,open,PaySim-style fraud pattern: account depletion via transfer or cash-out.,433
+RC00000058,TX0000005650,P2,open,High-risk merchant and amount significantly above customer baseline.,442
+RC00000059,TX0000005687,P2,open,High-risk merchant and amount significantly above customer baseline.,479
+RC00000060,TX0000005845,P2,open,High-risk merchant and amount significantly above customer baseline.,637
+RC00000061,TX0000005882,P2,open,High-risk merchant and amount significantly above customer baseline.,674
+RC00000062,TX0000005919,P1,open,PaySim-style fraud pattern: account depletion via transfer or cash-out.,711
+RC00000063,TX0000006262,P2,open,High-risk merchant and amount significantly above customer baseline.,310
+RC00000064,TX0000006299,P2,open,High-risk merchant and amount significantly above customer baseline.,347
+RC00000065,TX0000006411,P1,open,PaySim-style fraud pattern: account depletion via transfer or cash-out.,459
+RC00000066,TX0000006420,P2,open,High-risk merchant and amount significantly above customer baseline.,468
+RC00000067,TX0000006457,P2,open,High-risk merchant and amount significantly above customer baseline.,505
+RC00000068,TX0000006568,P1,open,PaySim-style fraud pattern: account depletion via transfer or cash-out.,616
+RC00000069,TX0000006615,P2,open,High-risk merchant and amount significantly above customer baseline.,663
+RC00000070,TX0000006652,P2,open,High-risk merchant and amount significantly above customer baseline.,700
+RC00000071,TX0000006689,P1,open,PaySim-style fraud pattern: account depletion via transfer or cash-out.,737
+RC00000072,TX0000007032,P2,open,High-risk merchant and amount significantly above customer baseline.,336
+RC00000073,TX0000007069,P2,open,High-risk merchant and amount significantly above customer baseline.,373
+RC00000074,TX0000007190,P2,open,High-risk merchant and amount significantly above customer baseline.,494
+RC00000075,TX0000007227,P2,open,High-risk merchant and amount significantly above customer baseline.,531
+RC00000076,TX0000007338,P1,open,PaySim-style fraud pattern: account depletion via transfer or cash-out.,642
+RC00000077,TX0000007385,P2,open,High-risk merchant and amount significantly above customer baseline.,689
+RC00000078,TX0000007422,P2,open,High-risk merchant and amount significantly above customer baseline.,726
+RC00000079,TX0000007459,P1,open,PaySim-style fraud pattern: account depletion via transfer or cash-out.,19
+RC00000080,TX0000007802,P2,open,High-risk merchant and amount significantly above customer baseline.,362
+RC00000081,TX0000007839,P2,open,High-risk merchant and amount significantly above customer baseline.,399
+RC00000082,TX0000007960,P2,open,High-risk merchant and amount significantly above customer baseline.,520
+RC00000083,TX0000007997,P2,open,High-risk merchant and amount significantly above customer baseline.,557
+RC00000084,TX0000008108,P1,open,PaySim-style fraud pattern: account depletion via transfer or cash-out.,668
+RC00000085,TX0000008192,P2,open,High-risk merchant and amount significantly above customer baseline.,8
+RC00000086,TX0000008229,P1,open,PaySim-style fraud pattern: account depletion via transfer or cash-out.,45
+RC00000087,TX0000008414,P2,open,High-risk merchant and amount significantly above customer baseline.,230
+RC00000088,TX0000008513,P1,open,PaySim-style fraud pattern: account depletion via transfer or cash-out.,329
+RC00000089,TX0000008572,P2,open,High-risk merchant and amount significantly above customer baseline.,388
+RC00000090,TX0000008609,P2,open,High-risk merchant and amount significantly above customer baseline.,425
+RC00000091,TX0000008730,P2,open,High-risk merchant and amount significantly above customer baseline.,546
+RC00000092,TX0000008767,P2,open,High-risk merchant and amount significantly above customer baseline.,583
+RC00000093,TX0000008878,P1,open,PaySim-style fraud pattern: account depletion via transfer or cash-out.,694
+RC00000094,TX0000008962,P2,open,High-risk merchant and amount significantly above customer baseline.,34
+RC00000095,TX0000008999,P1,open,PaySim-style fraud pattern: account depletion via transfer or cash-out.,71
+RC00000096,TX0000009184,P2,open,High-risk merchant and amount significantly above customer baseline.,256
+RC00000097,TX0000009283,P1,open,PaySim-style fraud pattern: account depletion via transfer or cash-out.,355
+RC00000098,TX0000009342,P2,open,High-risk merchant and amount significantly above customer baseline.,414
+RC00000099,TX0000009379,P2,open,High-risk merchant and amount significantly above customer baseline.,451
+RC00000100,TX0000009500,P2,open,High-risk merchant and amount significantly above customer baseline.,572
+RC00000101,TX0000009537,P2,open,High-risk merchant and amount significantly above customer baseline.,609
+RC00000102,TX0000009648,P1,open,PaySim-style fraud pattern: account depletion via transfer or cash-out.,720
+RC00000103,TX0000009769,P1,open,PaySim-style fraud pattern: account depletion via transfer or cash-out.,97
+RC00000104,TX0000009954,P2,open,High-risk merchant and amount significantly above customer baseline.,282
+RC00000105,TX0000009991,P2,open,High-risk merchant and amount significantly above customer baseline.,319
+RC00000106,TX0000010112,P2,open,High-risk merchant and amount significantly above customer baseline.,440
+RC00000107,TX0000010149,P2,open,High-risk merchant and amount significantly above customer baseline.,477
+RC00000108,TX0000010270,P2,open,High-risk merchant and amount significantly above customer baseline.,598
+RC00000109,TX0000010307,P2,open,High-risk merchant and amount significantly above customer baseline.,635
+RC00000110,TX0000010418,P1,open,PaySim-style fraud pattern: account depletion via transfer or cash-out.,2
+RC00000111,TX0000010539,P1,open,PaySim-style fraud pattern: account depletion via transfer or cash-out.,123
+RC00000112,TX0000010724,P2,open,High-risk merchant and amount significantly above customer baseline.,308
+RC00000113,TX0000010761,P2,open,High-risk merchant and amount significantly above customer baseline.,345
+RC00000114,TX0000010882,P2,open,High-risk merchant and amount significantly above customer baseline.,466
+RC00000115,TX0000010919,P2,open,High-risk merchant and amount significantly above customer baseline.,503
+RC00000116,TX0000011077,P2,open,High-risk merchant and amount significantly above customer baseline.,661
+RC00000117,TX0000011188,P1,open,PaySim-style fraud pattern: account depletion via transfer or cash-out.,28
+RC00000118,TX0000011299,P2,open,High-risk merchant and amount significantly above customer baseline.,139
+RC00000119,TX0000011385,P1,open,PaySim-style fraud pattern: account depletion via transfer or cash-out.,225
+RC00000120,TX0000011494,P2,open,High-risk merchant and amount significantly above customer baseline.,334
+RC00000121,TX0000011531,P2,open,High-risk merchant and amount significantly above customer baseline.,371
+RC00000122,TX0000011652,P2,open,High-risk merchant and amount significantly above customer baseline.,492
+RC00000123,TX0000011689,P2,open,High-risk merchant and amount significantly above customer baseline.,529
+RC00000124,TX0000011837,P2,open,High-risk merchant and amount significantly above customer baseline.,677
+RC00000125,TX0000011847,P2,open,High-risk merchant and amount significantly above customer baseline.,687
+RC00000126,TX0000011958,P1,open,PaySim-style fraud pattern: account depletion via transfer or cash-out.,54
+RC00000127,TX0000012069,P2,open,High-risk merchant and amount significantly above customer baseline.,165
+RC00000128,TX0000012106,P2,open,High-risk merchant and amount significantly above customer baseline.,202
+RC00000129,TX0000012264,P2,open,High-risk merchant and amount significantly above customer baseline.,360
+RC00000130,TX0000012301,P2,open,High-risk merchant and amount significantly above customer baseline.,397
+RC00000131,TX0000012422,P2,open,High-risk merchant and amount significantly above customer baseline.,518
+RC00000132,TX0000012459,P2,open,High-risk merchant and amount significantly above customer baseline.,555
+RC00000133,TX0000012607,P2,open,High-risk merchant and amount significantly above customer baseline.,703
+RC00000134,TX0000012728,P1,open,PaySim-style fraud pattern: account depletion via transfer or cash-out.,80
+RC00000135,TX0000012839,P2,open,High-risk merchant and amount significantly above customer baseline.,191
+RC00000136,TX0000012876,P2,open,High-risk merchant and amount significantly above customer baseline.,228
+RC00000137,TX0000013034,P2,open,High-risk merchant and amount significantly above customer baseline.,386
+RC00000138,TX0000013071,P2,open,High-risk merchant and amount significantly above customer baseline.,423
+RC00000139,TX0000013192,P2,open,High-risk merchant and amount significantly above customer baseline.,544
+RC00000140,TX0000013229,P2,open,High-risk merchant and amount significantly above customer baseline.,581
+RC00000141,TX0000013377,P2,open,High-risk merchant and amount significantly above customer baseline.,729
+RC00000142,TX0000013498,P1,open,PaySim-style fraud pattern: account depletion via transfer or cash-out.,106
+RC00000143,TX0000013609,P2,open,High-risk merchant and amount significantly above customer baseline.,217
+RC00000144,TX0000013646,P2,open,High-risk merchant and amount significantly above customer baseline.,254
+RC00000145,TX0000013804,P2,open,High-risk merchant and amount significantly above customer baseline.,412
+RC00000146,TX0000013841,P2,open,High-risk merchant and amount significantly above customer baseline.,449
+RC00000147,TX0000013962,P2,open,High-risk merchant and amount significantly above customer baseline.,570
+RC00000148,TX0000013999,P2,open,High-risk merchant and amount significantly above customer baseline.,607
+RC00000149,TX0000014147,P2,open,High-risk merchant and amount significantly above customer baseline.,11
+RC00000150,TX0000014268,P1,open,PaySim-style fraud pattern: account depletion via transfer or cash-out.,132
+RC00000151,TX0000014379,P2,open,High-risk merchant and amount significantly above customer baseline.,243
+RC00000152,TX0000014416,P2,open,High-risk merchant and amount significantly above customer baseline.,280
+RC00000153,TX0000014574,P2,open,High-risk merchant and amount significantly above customer baseline.,438
+RC00000154,TX0000014611,P2,open,High-risk merchant and amount significantly above customer baseline.,475
+RC00000155,TX0000014769,P2,open,High-risk merchant and amount significantly above customer baseline.,633
+RC00000156,TX0000014917,P2,open,High-risk merchant and amount significantly above customer baseline.,37
+RC00000157,TX0000014991,P2,open,High-risk merchant and amount significantly above customer baseline.,111
+RC00000158,TX0000015038,P1,open,PaySim-style fraud pattern: account depletion via transfer or cash-out.,158
+RC00000159,TX0000015149,P2,open,High-risk merchant and amount significantly above customer baseline.,269
+RC00000160,TX0000015186,P2,open,High-risk merchant and amount significantly above customer baseline.,306
+RC00000161,TX0000015344,P2,open,High-risk merchant and amount significantly above customer baseline.,464
+RC00000162,TX0000015381,P2,open,High-risk merchant and amount significantly above customer baseline.,501
+RC00000163,TX0000015539,P2,open,High-risk merchant and amount significantly above customer baseline.,659
+RC00000164,TX0000015687,P2,open,High-risk merchant and amount significantly above customer baseline.,63
+RC00000165,TX0000015761,P2,open,High-risk merchant and amount significantly above customer baseline.,137
+RC00000166,TX0000015808,P1,open,PaySim-style fraud pattern: account depletion via transfer or cash-out.,184
+RC00000167,TX0000015919,P2,open,High-risk merchant and amount significantly above customer baseline.,295
+RC00000168,TX0000015956,P2,open,High-risk merchant and amount significantly above customer baseline.,332
+RC00000169,TX0000016114,P2,open,High-risk merchant and amount significantly above customer baseline.,490
+RC00000170,TX0000016151,P2,open,High-risk merchant and amount significantly above customer baseline.,527
+RC00000171,TX0000016457,P2,open,High-risk merchant and amount significantly above customer baseline.,89
+RC00000172,TX0000016531,P2,open,High-risk merchant and amount significantly above customer baseline.,163
+RC00000173,TX0000016568,P2,open,High-risk merchant and amount significantly above customer baseline.,200
+RC00000174,TX0000016689,P2,open,High-risk merchant and amount significantly above customer baseline.,321
+RC00000175,TX0000016726,P2,open,High-risk merchant and amount significantly above customer baseline.,358
+RC00000176,TX0000016884,P2,open,High-risk merchant and amount significantly above customer baseline.,516
+RC00000177,TX0000016921,P2,open,High-risk merchant and amount significantly above customer baseline.,553
+RC00000178,TX0000017106,P2,open,High-risk merchant and amount significantly above customer baseline.,738
+RC00000179,TX0000017227,P2,open,High-risk merchant and amount significantly above customer baseline.,115
+RC00000180,TX0000017301,P2,open,High-risk merchant and amount significantly above customer baseline.,189
+RC00000181,TX0000017338,P2,open,High-risk merchant and amount significantly above customer baseline.,226
+RC00000182,TX0000017459,P2,open,High-risk merchant and amount significantly above customer baseline.,347
+RC00000183,TX0000017496,P2,open,High-risk merchant and amount significantly above customer baseline.,384
+RC00000184,TX0000017654,P2,open,High-risk merchant and amount significantly above customer baseline.,542
+RC00000185,TX0000017691,P2,open,High-risk merchant and amount significantly above customer baseline.,579
+RC00000186,TX0000017795,P1,open,PaySim-style fraud pattern: account depletion via transfer or cash-out.,683
+RC00000187,TX0000017876,P2,open,High-risk merchant and amount significantly above customer baseline.,20
+RC00000188,TX0000017997,P2,open,High-risk merchant and amount significantly above customer baseline.,141
+RC00000189,TX0000018071,P2,open,High-risk merchant and amount significantly above customer baseline.,215
+RC00000190,TX0000018108,P2,open,High-risk merchant and amount significantly above customer baseline.,252
+RC00000191,TX0000018229,P2,open,High-risk merchant and amount significantly above customer baseline.,373
+RC00000192,TX0000018266,P2,open,High-risk merchant and amount significantly above customer baseline.,410
+RC00000193,TX0000018424,P2,open,High-risk merchant and amount significantly above customer baseline.,568
+RC00000194,TX0000018461,P2,open,High-risk merchant and amount significantly above customer baseline.,605
+RC00000195,TX0000018646,P2,open,High-risk merchant and amount significantly above customer baseline.,46
+RC00000196,TX0000018683,P2,open,High-risk merchant and amount significantly above customer baseline.,83
+RC00000197,TX0000018767,P2,open,High-risk merchant and amount significantly above customer baseline.,167
+RC00000198,TX0000018841,P2,open,High-risk merchant and amount significantly above customer baseline.,241
+RC00000199,TX0000018878,P2,open,High-risk merchant and amount significantly above customer baseline.,278
+RC00000200,TX0000018999,P2,open,High-risk merchant and amount significantly above customer baseline.,399
+RC00000201,TX0000019036,P2,open,High-risk merchant and amount significantly above customer baseline.,436
+RC00000202,TX0000019231,P2,open,High-risk merchant and amount significantly above customer baseline.,631
+RC00000203,TX0000019416,P2,open,High-risk merchant and amount significantly above customer baseline.,72
+RC00000204,TX0000019453,P2,open,High-risk merchant and amount significantly above customer baseline.,109
+RC00000205,TX0000019537,P2,open,High-risk merchant and amount significantly above customer baseline.,193
+RC00000206,TX0000019611,P2,open,High-risk merchant and amount significantly above customer baseline.,267
+RC00000207,TX0000019648,P2,open,High-risk merchant and amount significantly above customer baseline.,304
+RC00000208,TX0000019769,P2,open,High-risk merchant and amount significantly above customer baseline.,425
+RC00000209,TX0000019806,P2,open,High-risk merchant and amount significantly above customer baseline.,462
+RC00000210,TX0000019897,P1,open,PaySim-style fraud pattern: account depletion via transfer or cash-out.,553
+RC00000211,TX0000020001,P2,open,High-risk merchant and amount significantly above customer baseline.,657
+RC00000212,TX0000020186,P2,open,High-risk merchant and amount significantly above customer baseline.,98
+RC00000213,TX0000020223,P2,open,High-risk merchant and amount significantly above customer baseline.,135
+RC00000214,TX0000020260,P2,open,High-risk merchant and amount significantly above customer baseline.,172
+RC00000215,TX0000020307,P2,open,High-risk merchant and amount significantly above customer baseline.,219
+RC00000216,TX0000020381,P2,open,High-risk merchant and amount significantly above customer baseline.,293
+RC00000217,TX0000020418,P2,open,High-risk merchant and amount significantly above customer baseline.,330
+RC00000218,TX0000020539,P2,open,High-risk merchant and amount significantly above customer baseline.,451
+RC00000219,TX0000020576,P2,open,High-risk merchant and amount significantly above customer baseline.,488
+RC00000220,TX0000020667,P1,open,PaySim-style fraud pattern: account depletion via transfer or cash-out.,579
+RC00000221,TX0000020956,P2,open,High-risk merchant and amount significantly above customer baseline.,124
+RC00000222,TX0000020993,P2,open,High-risk merchant and amount significantly above customer baseline.,161
+RC00000223,TX0000021030,P2,open,High-risk merchant and amount significantly above customer baseline.,198
+RC00000224,TX0000021077,P2,open,High-risk merchant and amount significantly above customer baseline.,245
+RC00000225,TX0000021151,P2,open,High-risk merchant and amount significantly above customer baseline.,319
+RC00000226,TX0000021188,P2,open,High-risk merchant and amount significantly above customer baseline.,356
+RC00000227,TX0000021346,P2,open,High-risk merchant and amount significantly above customer baseline.,514
+RC00000228,TX0000021568,P2,open,High-risk merchant and amount significantly above customer baseline.,736
+RC00000229,TX0000021726,P2,open,High-risk merchant and amount significantly above customer baseline.,150
+RC00000230,TX0000021763,P2,open,High-risk merchant and amount significantly above customer baseline.,187
+RC00000231,TX0000021800,P2,open,High-risk merchant and amount significantly above customer baseline.,224
+RC00000232,TX0000021847,P2,open,High-risk merchant and amount significantly above customer baseline.,271
+RC00000233,TX0000021921,P2,open,High-risk merchant and amount significantly above customer baseline.,345
+RC00000234,TX0000021958,P2,open,High-risk merchant and amount significantly above customer baseline.,382
+RC00000235,TX0000022116,P2,open,High-risk merchant and amount significantly above customer baseline.,540
+RC00000236,TX0000022338,P2,open,High-risk merchant and amount significantly above customer baseline.,18
+RC00000237,TX0000022496,P2,open,High-risk merchant and amount significantly above customer baseline.,176
+RC00000238,TX0000022533,P2,open,High-risk merchant and amount significantly above customer baseline.,213
+RC00000239,TX0000022570,P2,open,High-risk merchant and amount significantly above customer baseline.,250
+RC00000240,TX0000022691,P2,open,High-risk merchant and amount significantly above customer baseline.,371
+RC00000241,TX0000022728,P2,open,High-risk merchant and amount significantly above customer baseline.,408
+RC00000242,TX0000022769,P1,open,PaySim-style fraud pattern: account depletion via transfer or cash-out.,449
+RC00000243,TX0000023108,P2,open,High-risk merchant and amount significantly above customer baseline.,44
+RC00000244,TX0000023145,P1,open,PaySim-style fraud pattern: account depletion via transfer or cash-out.,81
+RC00000245,TX0000023266,P2,open,High-risk merchant and amount significantly above customer baseline.,202
+RC00000246,TX0000023303,P2,open,High-risk merchant and amount significantly above customer baseline.,239
+RC00000247,TX0000023340,P2,open,High-risk merchant and amount significantly above customer baseline.,276
+RC00000248,TX0000023461,P2,open,High-risk merchant and amount significantly above customer baseline.,397
+RC00000249,TX0000023498,P2,open,High-risk merchant and amount significantly above customer baseline.,434
+RC00000250,TX0000023539,P1,open,PaySim-style fraud pattern: account depletion via transfer or cash-out.,475
+RC00000251,TX0000023878,P2,open,High-risk merchant and amount significantly above customer baseline.,70
+RC00000252,TX0000023915,P1,open,PaySim-style fraud pattern: account depletion via transfer or cash-out.,107
+RC00000253,TX0000024036,P2,open,High-risk merchant and amount significantly above customer baseline.,228
+RC00000254,TX0000024073,P2,open,High-risk merchant and amount significantly above customer baseline.,265
+RC00000255,TX0000024110,P2,open,High-risk merchant and amount significantly above customer baseline.,302
+RC00000256,TX0000024231,P2,open,High-risk merchant and amount significantly above customer baseline.,423
+RC00000257,TX0000024268,P2,open,High-risk merchant and amount significantly above customer baseline.,460
+RC00000258,TX0000024648,P2,open,High-risk merchant and amount significantly above customer baseline.,96
+RC00000259,TX0000024685,P1,open,PaySim-style fraud pattern: account depletion via transfer or cash-out.,133
+RC00000260,TX0000024806,P2,open,High-risk merchant and amount significantly above customer baseline.,254
+RC00000261,TX0000024843,P2,open,High-risk merchant and amount significantly above customer baseline.,291
+RC00000262,TX0000024880,P2,open,High-risk merchant and amount significantly above customer baseline.,328
+RC00000263,TX0000025001,P2,open,High-risk merchant and amount significantly above customer baseline.,449
+RC00000264,TX0000025038,P2,open,High-risk merchant and amount significantly above customer baseline.,486
+RC00000265,TX0000025260,P2,open,High-risk merchant and amount significantly above customer baseline.,708
+RC00000266,TX0000025418,P2,open,High-risk merchant and amount significantly above customer baseline.,122
+RC00000267,TX0000025455,P1,open,PaySim-style fraud pattern: account depletion via transfer or cash-out.,159
+RC00000268,TX0000025576,P2,open,High-risk merchant and amount significantly above customer baseline.,280
+RC00000269,TX0000025613,P2,open,High-risk merchant and amount significantly above customer baseline.,317
+RC00000270,TX0000025641,P1,open,PaySim-style fraud pattern: account depletion via transfer or cash-out.,345
+RC00000271,TX0000025650,P2,open,High-risk merchant and amount significantly above customer baseline.,354
+RC00000272,TX0000025808,P2,open,High-risk merchant and amount significantly above customer baseline.,512
+RC00000273,TX0000026030,P2,open,High-risk merchant and amount significantly above customer baseline.,734
+RC00000274,TX0000026188,P2,open,High-risk merchant and amount significantly above customer baseline.,148
+RC00000275,TX0000026225,P1,open,PaySim-style fraud pattern: account depletion via transfer or cash-out.,185
+RC00000276,TX0000026346,P2,open,High-risk merchant and amount significantly above customer baseline.,306
+RC00000277,TX0000026383,P2,open,High-risk merchant and amount significantly above customer baseline.,343
+RC00000278,TX0000026411,P1,open,PaySim-style fraud pattern: account depletion via transfer or cash-out.,371
+RC00000279,TX0000026420,P2,open,High-risk merchant and amount significantly above customer baseline.,380
+RC00000280,TX0000026800,P2,open,High-risk merchant and amount significantly above customer baseline.,16
+RC00000281,TX0000026837,P2,open,High-risk merchant and amount significantly above customer baseline.,53
+RC00000282,TX0000026958,P2,open,High-risk merchant and amount significantly above customer baseline.,174
+RC00000283,TX0000026995,P1,open,PaySim-style fraud pattern: account depletion via transfer or cash-out.,211
+RC00000284,TX0000027116,P2,open,High-risk merchant and amount significantly above customer baseline.,332
+RC00000285,TX0000027153,P2,open,High-risk merchant and amount significantly above customer baseline.,369
+RC00000286,TX0000027190,P2,open,High-risk merchant and amount significantly above customer baseline.,406
+RC00000287,TX0000027570,P2,open,High-risk merchant and amount significantly above customer baseline.,42
+RC00000288,TX0000027607,P2,open,High-risk merchant and amount significantly above customer baseline.,79
+RC00000289,TX0000027728,P2,open,High-risk merchant and amount significantly above customer baseline.,200
+RC00000290,TX0000027765,P1,open,PaySim-style fraud pattern: account depletion via transfer or cash-out.,237
+RC00000291,TX0000027923,P2,open,High-risk merchant and amount significantly above customer baseline.,395
+RC00000292,TX0000027960,P2,open,High-risk merchant and amount significantly above customer baseline.,432
+RC00000293,TX0000028145,P2,open,High-risk merchant and amount significantly above customer baseline.,617
+RC00000294,TX0000028340,P2,open,High-risk merchant and amount significantly above customer baseline.,68
+RC00000295,TX0000028377,P2,open,High-risk merchant and amount significantly above customer baseline.,105
+RC00000296,TX0000028414,P1,open,PaySim-style fraud pattern: account depletion via transfer or cash-out.,142
+RC00000297,TX0000028498,P2,open,High-risk merchant and amount significantly above customer baseline.,226
+RC00000298,TX0000028513,P1,open,PaySim-style fraud pattern: account depletion via transfer or cash-out.,241
+RC00000299,TX0000028535,P1,open,PaySim-style fraud pattern: account depletion via transfer or cash-out.,263
+RC00000300,TX0000028693,P2,open,High-risk merchant and amount significantly above customer baseline.,421
+RC00000301,TX0000028730,P2,open,High-risk merchant and amount significantly above customer baseline.,458
+RC00000302,TX0000028915,P2,open,High-risk merchant and amount significantly above customer baseline.,643
+RC00000303,TX0000029110,P2,open,High-risk merchant and amount significantly above customer baseline.,94
+RC00000304,TX0000029147,P2,open,High-risk merchant and amount significantly above customer baseline.,131
+RC00000305,TX0000029184,P1,open,PaySim-style fraud pattern: account depletion via transfer or cash-out.,168
+RC00000306,TX0000029268,P2,open,High-risk merchant and amount significantly above customer baseline.,252
+RC00000307,TX0000029283,P1,open,PaySim-style fraud pattern: account depletion via transfer or cash-out.,267
+RC00000308,TX0000029305,P1,open,PaySim-style fraud pattern: account depletion via transfer or cash-out.,289
+RC00000309,TX0000029500,P2,open,High-risk merchant and amount significantly above customer baseline.,484
+RC00000310,TX0000029685,P2,open,High-risk merchant and amount significantly above customer baseline.,669
+RC00000311,TX0000029722,P2,open,High-risk merchant and amount significantly above customer baseline.,706
+RC00000312,TX0000029880,P2,open,High-risk merchant and amount significantly above customer baseline.,120
+RC00000313,TX0000029917,P2,open,High-risk merchant and amount significantly above customer baseline.,157
+RC00000314,TX0000029954,P1,open,PaySim-style fraud pattern: account depletion via transfer or cash-out.,194
+RC00000315,TX0000030038,P2,open,High-risk merchant and amount significantly above customer baseline.,278
+RC00000316,TX0000030075,P1,open,PaySim-style fraud pattern: account depletion via transfer or cash-out.,315
+RC00000317,TX0000030270,P2,open,High-risk merchant and amount significantly above customer baseline.,510
+RC00000318,TX0000030455,P2,open,High-risk merchant and amount significantly above customer baseline.,695
+RC00000319,TX0000030492,P2,open,High-risk merchant and amount significantly above customer baseline.,732
+RC00000320,TX0000030650,P2,open,High-risk merchant and amount significantly above customer baseline.,146
+RC00000321,TX0000030687,P2,open,High-risk merchant and amount significantly above customer baseline.,183
+RC00000322,TX0000030724,P1,open,PaySim-style fraud pattern: account depletion via transfer or cash-out.,220
+RC00000323,TX0000030808,P2,open,High-risk merchant and amount significantly above customer baseline.,304
+RC00000324,TX0000030845,P1,open,PaySim-style fraud pattern: account depletion via transfer or cash-out.,341
+RC00000325,TX0000031225,P2,open,High-risk merchant and amount significantly above customer baseline.,721
+RC00000326,TX0000031262,P2,open,High-risk merchant and amount significantly above customer baseline.,14
+RC00000327,TX0000031385,P1,open,PaySim-style fraud pattern: account depletion via transfer or cash-out.,137
+RC00000328,TX0000031420,P2,open,High-risk merchant and amount significantly above customer baseline.,172
+RC00000329,TX0000031457,P2,open,High-risk merchant and amount significantly above customer baseline.,209
+RC00000330,TX0000031494,P1,open,PaySim-style fraud pattern: account depletion via transfer or cash-out.,246
+RC00000331,TX0000031615,P1,open,PaySim-style fraud pattern: account depletion via transfer or cash-out.,367
+RC00000332,TX0000031837,P2,open,High-risk merchant and amount significantly above customer baseline.,589
+RC00000333,TX0000031995,P2,open,High-risk merchant and amount significantly above customer baseline.,3
+RC00000334,TX0000032032,P2,open,High-risk merchant and amount significantly above customer baseline.,40
+RC00000335,TX0000032190,P2,open,High-risk merchant and amount significantly above customer baseline.,198
+RC00000336,TX0000032227,P2,open,High-risk merchant and amount significantly above customer baseline.,235
+RC00000337,TX0000032264,P1,open,PaySim-style fraud pattern: account depletion via transfer or cash-out.,272
+RC00000338,TX0000032385,P1,open,PaySim-style fraud pattern: account depletion via transfer or cash-out.,393
+RC00000339,TX0000032607,P2,open,High-risk merchant and amount significantly above customer baseline.,615
+RC00000340,TX0000032765,P2,open,High-risk merchant and amount significantly above customer baseline.,29
+RC00000341,TX0000032802,P2,open,High-risk merchant and amount significantly above customer baseline.,66
+RC00000342,TX0000032960,P2,open,High-risk merchant and amount significantly above customer baseline.,224
+RC00000343,TX0000032997,P2,open,High-risk merchant and amount significantly above customer baseline.,261
+RC00000344,TX0000033034,P1,open,PaySim-style fraud pattern: account depletion via transfer or cash-out.,298
+RC00000345,TX0000033377,P2,open,High-risk merchant and amount significantly above customer baseline.,641
+RC00000346,TX0000033414,P2,open,High-risk merchant and amount significantly above customer baseline.,678
+RC00000347,TX0000033535,P2,open,High-risk merchant and amount significantly above customer baseline.,55
+RC00000348,TX0000033572,P2,open,High-risk merchant and amount significantly above customer baseline.,92
+RC00000349,TX0000033683,P1,open,PaySim-style fraud pattern: account depletion via transfer or cash-out.,203
+RC00000350,TX0000033730,P2,open,High-risk merchant and amount significantly above customer baseline.,250
+RC00000351,TX0000033767,P2,open,High-risk merchant and amount significantly above customer baseline.,287
+RC00000352,TX0000033804,P1,open,PaySim-style fraud pattern: account depletion via transfer or cash-out.,324
+RC00000353,TX0000034147,P2,open,High-risk merchant and amount significantly above customer baseline.,667
+RC00000354,TX0000034184,P2,open,High-risk merchant and amount significantly above customer baseline.,704
+RC00000355,TX0000034305,P2,open,High-risk merchant and amount significantly above customer baseline.,81
+RC00000356,TX0000034342,P2,open,High-risk merchant and amount significantly above customer baseline.,118
+RC00000357,TX0000034453,P1,open,PaySim-style fraud pattern: account depletion via transfer or cash-out.,229
+RC00000358,TX0000034500,P2,open,High-risk merchant and amount significantly above customer baseline.,276
+RC00000359,TX0000034537,P2,open,High-risk merchant and amount significantly above customer baseline.,313
+RC00000360,TX0000034574,P1,open,PaySim-style fraud pattern: account depletion via transfer or cash-out.,350
+RC00000361,TX0000034917,P2,open,High-risk merchant and amount significantly above customer baseline.,693
+RC00000362,TX0000034954,P2,open,High-risk merchant and amount significantly above customer baseline.,730
+RC00000363,TX0000035075,P2,open,High-risk merchant and amount significantly above customer baseline.,107
+RC00000364,TX0000035112,P2,open,High-risk merchant and amount significantly above customer baseline.,144
+RC00000365,TX0000035223,P1,open,PaySim-style fraud pattern: account depletion via transfer or cash-out.,255
+RC00000366,TX0000035270,P2,open,High-risk merchant and amount significantly above customer baseline.,302
+RC00000367,TX0000035307,P2,open,High-risk merchant and amount significantly above customer baseline.,339
+RC00000368,TX0000035344,P1,open,PaySim-style fraud pattern: account depletion via transfer or cash-out.,376
+RC00000369,TX0000035687,P2,open,High-risk merchant and amount significantly above customer baseline.,719
+RC00000370,TX0000035724,P2,open,High-risk merchant and amount significantly above customer baseline.,12
+RC00000371,TX0000035845,P2,open,High-risk merchant and amount significantly above customer baseline.,133
+RC00000372,TX0000035882,P2,open,High-risk merchant and amount significantly above customer baseline.,170
+RC00000373,TX0000035993,P1,open,PaySim-style fraud pattern: account depletion via transfer or cash-out.,281
+RC00000374,TX0000036077,P2,open,High-risk merchant and amount significantly above customer baseline.,365
+RC00000375,TX0000036114,P1,open,PaySim-style fraud pattern: account depletion via transfer or cash-out.,402
+RC00000376,TX0000036299,P2,open,High-risk merchant and amount significantly above customer baseline.,587
+RC00000377,TX0000036457,P2,open,High-risk merchant and amount significantly above customer baseline.,1
+RC00000378,TX0000036494,P2,open,High-risk merchant and amount significantly above customer baseline.,38
+RC00000379,TX0000036615,P2,open,High-risk merchant and amount significantly above customer baseline.,159
+RC00000380,TX0000036652,P2,open,High-risk merchant and amount significantly above customer baseline.,196
+RC00000381,TX0000036763,P1,open,PaySim-style fraud pattern: account depletion via transfer or cash-out.,307
+RC00000382,TX0000036847,P2,open,High-risk merchant and amount significantly above customer baseline.,391
+RC00000383,TX0000036884,P1,open,PaySim-style fraud pattern: account depletion via transfer or cash-out.,428
+RC00000384,TX0000037069,P2,open,High-risk merchant and amount significantly above customer baseline.,613
+RC00000385,TX0000037106,P2,open,High-risk merchant and amount significantly above customer baseline.,650
+RC00000386,TX0000037227,P2,open,High-risk merchant and amount significantly above customer baseline.,27
+RC00000387,TX0000037264,P2,open,High-risk merchant and amount significantly above customer baseline.,64
+RC00000388,TX0000037385,P2,open,High-risk merchant and amount significantly above customer baseline.,185
+RC00000389,TX0000037422,P2,open,High-risk merchant and amount significantly above customer baseline.,222
+RC00000390,TX0000037533,P1,open,PaySim-style fraud pattern: account depletion via transfer or cash-out.,333
+RC00000391,TX0000037654,P1,open,PaySim-style fraud pattern: account depletion via transfer or cash-out.,454
+RC00000392,TX0000037795,P1,open,PaySim-style fraud pattern: account depletion via transfer or cash-out.,595
+RC00000393,TX0000037839,P2,open,High-risk merchant and amount significantly above customer baseline.,639
+RC00000394,TX0000037876,P2,open,High-risk merchant and amount significantly above customer baseline.,676
+RC00000395,TX0000037997,P2,open,High-risk merchant and amount significantly above customer baseline.,53
+RC00000396,TX0000038034,P2,open,High-risk merchant and amount significantly above customer baseline.,90
+RC00000397,TX0000038192,P2,open,High-risk merchant and amount significantly above customer baseline.,248
+RC00000398,TX0000038303,P1,open,PaySim-style fraud pattern: account depletion via transfer or cash-out.,359
+RC00000399,TX0000038414,P2,open,High-risk merchant and amount significantly above customer baseline.,470
+RC00000400,TX0000038424,P1,open,PaySim-style fraud pattern: account depletion via transfer or cash-out.,480
+RC00000401,TX0000038609,P2,open,High-risk merchant and amount significantly above customer baseline.,665
+RC00000402,TX0000038646,P2,open,High-risk merchant and amount significantly above customer baseline.,702
+RC00000403,TX0000038767,P2,open,High-risk merchant and amount significantly above customer baseline.,79
+RC00000404,TX0000038804,P2,open,High-risk merchant and amount significantly above customer baseline.,116
+RC00000405,TX0000038962,P2,open,High-risk merchant and amount significantly above customer baseline.,274
+RC00000406,TX0000039073,P1,open,PaySim-style fraud pattern: account depletion via transfer or cash-out.,385
+RC00000407,TX0000039184,P2,open,High-risk merchant and amount significantly above customer baseline.,496
+RC00000408,TX0000039379,P2,open,High-risk merchant and amount significantly above customer baseline.,691
+RC00000409,TX0000039416,P2,open,High-risk merchant and amount significantly above customer baseline.,728
+RC00000410,TX0000039537,P2,open,High-risk merchant and amount significantly above customer baseline.,105
+RC00000411,TX0000039574,P2,open,High-risk merchant and amount significantly above customer baseline.,142
+RC00000412,TX0000039722,P2,open,High-risk merchant and amount significantly above customer baseline.,290
+RC00000413,TX0000039843,P1,open,PaySim-style fraud pattern: account depletion via transfer or cash-out.,411
+RC00000414,TX0000039897,P1,open,PaySim-style fraud pattern: account depletion via transfer or cash-out.,465
+RC00000415,TX0000039954,P2,open,High-risk merchant and amount significantly above customer baseline.,522
+RC00000416,TX0000039991,P2,open,High-risk merchant and amount significantly above customer baseline.,559
+RC00000417,TX0000040149,P2,open,High-risk merchant and amount significantly above customer baseline.,717
+RC00000418,TX0000040186,P2,open,High-risk merchant and amount significantly above customer baseline.,10
+RC00000419,TX0000040307,P2,open,High-risk merchant and amount significantly above customer baseline.,131
+RC00000420,TX0000040344,P2,open,High-risk merchant and amount significantly above customer baseline.,168
+RC00000421,TX0000040492,P2,open,High-risk merchant and amount significantly above customer baseline.,316
+RC00000422,TX0000040613,P1,open,PaySim-style fraud pattern: account depletion via transfer or cash-out.,437
+RC00000423,TX0000040667,P1,open,PaySim-style fraud pattern: account depletion via transfer or cash-out.,491
+RC00000424,TX0000040724,P2,open,High-risk merchant and amount significantly above customer baseline.,548
+RC00000425,TX0000040761,P2,open,High-risk merchant and amount significantly above customer baseline.,585
+RC00000426,TX0000040919,P2,open,High-risk merchant and amount significantly above customer baseline.,743
+RC00000427,TX0000040956,P2,open,High-risk merchant and amount significantly above customer baseline.,36
+RC00000428,TX0000041077,P2,open,High-risk merchant and amount significantly above customer baseline.,157
+RC00000429,TX0000041114,P2,open,High-risk merchant and amount significantly above customer baseline.,194
+RC00000430,TX0000041262,P2,open,High-risk merchant and amount significantly above customer baseline.,342
+RC00000431,TX0000041383,P1,open,PaySim-style fraud pattern: account depletion via transfer or cash-out.,463
+RC00000432,TX0000041494,P2,open,High-risk merchant and amount significantly above customer baseline.,574
+RC00000433,TX0000041531,P2,open,High-risk merchant and amount significantly above customer baseline.,611
+RC00000434,TX0000041689,P2,open,High-risk merchant and amount significantly above customer baseline.,25
+RC00000435,TX0000041726,P2,open,High-risk merchant and amount significantly above customer baseline.,62
+RC00000436,TX0000041847,P2,open,High-risk merchant and amount significantly above customer baseline.,183
+RC00000437,TX0000041884,P2,open,High-risk merchant and amount significantly above customer baseline.,220
+RC00000438,TX0000042032,P2,open,High-risk merchant and amount significantly above customer baseline.,368
+RC00000439,TX0000042106,P2,open,High-risk merchant and amount significantly above customer baseline.,442
+RC00000440,TX0000042153,P1,open,PaySim-style fraud pattern: account depletion via transfer or cash-out.,489
+RC00000441,TX0000042264,P2,open,High-risk merchant and amount significantly above customer baseline.,600
+RC00000442,TX0000042301,P2,open,High-risk merchant and amount significantly above customer baseline.,637
+RC00000443,TX0000042459,P2,open,High-risk merchant and amount significantly above customer baseline.,51
+RC00000444,TX0000042496,P2,open,High-risk merchant and amount significantly above customer baseline.,88
+RC00000445,TX0000042654,P2,open,High-risk merchant and amount significantly above customer baseline.,246
+RC00000446,TX0000042769,P1,open,PaySim-style fraud pattern: account depletion via transfer or cash-out.,361
+RC00000447,TX0000042802,P2,open,High-risk merchant and amount significantly above customer baseline.,394
+RC00000448,TX0000042876,P2,open,High-risk merchant and amount significantly above customer baseline.,468
+RC00000449,TX0000042923,P1,open,PaySim-style fraud pattern: account depletion via transfer or cash-out.,515
+RC00000450,TX0000043034,P2,open,High-risk merchant and amount significantly above customer baseline.,626
+RC00000451,TX0000043071,P2,open,High-risk merchant and amount significantly above customer baseline.,663
+RC00000452,TX0000043229,P2,open,High-risk merchant and amount significantly above customer baseline.,77
+RC00000453,TX0000043266,P2,open,High-risk merchant and amount significantly above customer baseline.,114
+RC00000454,TX0000043424,P2,open,High-risk merchant and amount significantly above customer baseline.,272
+RC00000455,TX0000043539,P1,open,PaySim-style fraud pattern: account depletion via transfer or cash-out.,387
+RC00000456,TX0000043572,P2,open,High-risk merchant and amount significantly above customer baseline.,420
+RC00000457,TX0000043646,P2,open,High-risk merchant and amount significantly above customer baseline.,494
+RC00000458,TX0000043683,P2,open,High-risk merchant and amount significantly above customer baseline.,531
+RC00000459,TX0000043693,P1,open,PaySim-style fraud pattern: account depletion via transfer or cash-out.,541
+RC00000460,TX0000043804,P2,open,High-risk merchant and amount significantly above customer baseline.,652
+RC00000461,TX0000043841,P2,open,High-risk merchant and amount significantly above customer baseline.,689
+RC00000462,TX0000043999,P2,open,High-risk merchant and amount significantly above customer baseline.,103
+RC00000463,TX0000044036,P2,open,High-risk merchant and amount significantly above customer baseline.,140
+RC00000464,TX0000044342,P2,open,High-risk merchant and amount significantly above customer baseline.,446
+RC00000465,TX0000044416,P2,open,High-risk merchant and amount significantly above customer baseline.,520
+RC00000466,TX0000044453,P2,open,High-risk merchant and amount significantly above customer baseline.,557
+RC00000467,TX0000044574,P2,open,High-risk merchant and amount significantly above customer baseline.,678
+RC00000468,TX0000044611,P2,open,High-risk merchant and amount significantly above customer baseline.,715
+RC00000469,TX0000044769,P2,open,High-risk merchant and amount significantly above customer baseline.,129
+RC00000470,TX0000044806,P2,open,High-risk merchant and amount significantly above customer baseline.,166
+RC00000471,TX0000044991,P2,open,High-risk merchant and amount significantly above customer baseline.,351
+RC00000472,TX0000045112,P2,open,High-risk merchant and amount significantly above customer baseline.,472
+RC00000473,TX0000045186,P2,open,High-risk merchant and amount significantly above customer baseline.,546
+RC00000474,TX0000045223,P2,open,High-risk merchant and amount significantly above customer baseline.,583
+RC00000475,TX0000045344,P2,open,High-risk merchant and amount significantly above customer baseline.,704
+RC00000476,TX0000045381,P2,open,High-risk merchant and amount significantly above customer baseline.,741
+RC00000477,TX0000045539,P2,open,High-risk merchant and amount significantly above customer baseline.,155
+RC00000478,TX0000045576,P2,open,High-risk merchant and amount significantly above customer baseline.,192
+RC00000479,TX0000045641,P1,open,PaySim-style fraud pattern: account depletion via transfer or cash-out.,257
+RC00000480,TX0000045761,P2,open,High-risk merchant and amount significantly above customer baseline.,377
+RC00000481,TX0000045882,P2,open,High-risk merchant and amount significantly above customer baseline.,498
+RC00000482,TX0000045956,P2,open,High-risk merchant and amount significantly above customer baseline.,572
+RC00000483,TX0000045993,P2,open,High-risk merchant and amount significantly above customer baseline.,609
+RC00000484,TX0000046114,P2,open,High-risk merchant and amount significantly above customer baseline.,730
+RC00000485,TX0000046151,P2,open,High-risk merchant and amount significantly above customer baseline.,23
+RC00000486,TX0000046346,P2,open,High-risk merchant and amount significantly above customer baseline.,218
+RC00000487,TX0000046411,P1,open,PaySim-style fraud pattern: account depletion via transfer or cash-out.,283
+RC00000488,TX0000046531,P2,open,High-risk merchant and amount significantly above customer baseline.,403
+RC00000489,TX0000046568,P2,open,High-risk merchant and amount significantly above customer baseline.,440
+RC00000490,TX0000046652,P2,open,High-risk merchant and amount significantly above customer baseline.,524
+RC00000491,TX0000046726,P2,open,High-risk merchant and amount significantly above customer baseline.,598
+RC00000492,TX0000046763,P2,open,High-risk merchant and amount significantly above customer baseline.,635
+RC00000493,TX0000046884,P2,open,High-risk merchant and amount significantly above customer baseline.,12
+RC00000494,TX0000046921,P2,open,High-risk merchant and amount significantly above customer baseline.,49
+RC00000495,TX0000047116,P2,open,High-risk merchant and amount significantly above customer baseline.,244
+RC00000496,TX0000047301,P2,open,High-risk merchant and amount significantly above customer baseline.,429
+RC00000497,TX0000047338,P2,open,High-risk merchant and amount significantly above customer baseline.,466
+RC00000498,TX0000047422,P2,open,High-risk merchant and amount significantly above customer baseline.,550
+RC00000499,TX0000047496,P2,open,High-risk merchant and amount significantly above customer baseline.,624
+RC00000500,TX0000047533,P2,open,High-risk merchant and amount significantly above customer baseline.,661
+RC00000501,TX0000047654,P2,open,High-risk merchant and amount significantly above customer baseline.,38
+RC00000502,TX0000047691,P2,open,High-risk merchant and amount significantly above customer baseline.,75
+RC00000503,TX0000048071,P2,open,High-risk merchant and amount significantly above customer baseline.,455
+RC00000504,TX0000048108,P2,open,High-risk merchant and amount significantly above customer baseline.,492
+RC00000505,TX0000048145,P2,open,High-risk merchant and amount significantly above customer baseline.,529
+RC00000506,TX0000048192,P2,open,High-risk merchant and amount significantly above customer baseline.,576
+RC00000507,TX0000048266,P2,open,High-risk merchant and amount significantly above customer baseline.,650
+RC00000508,TX0000048303,P2,open,High-risk merchant and amount significantly above customer baseline.,687
+RC00000509,TX0000048424,P2,open,High-risk merchant and amount significantly above customer baseline.,64
+RC00000510,TX0000048461,P2,open,High-risk merchant and amount significantly above customer baseline.,101
+RC00000511,TX0000048513,P1,open,PaySim-style fraud pattern: account depletion via transfer or cash-out.,153
+RC00000512,TX0000048683,P2,open,High-risk merchant and amount significantly above customer baseline.,323
+RC00000513,TX0000048841,P2,open,High-risk merchant and amount significantly above customer baseline.,481
+RC00000514,TX0000048878,P2,open,High-risk merchant and amount significantly above customer baseline.,518
+RC00000515,TX0000048915,P2,open,High-risk merchant and amount significantly above customer baseline.,555
+RC00000516,TX0000048962,P2,open,High-risk merchant and amount significantly above customer baseline.,602
+RC00000517,TX0000049036,P2,open,High-risk merchant and amount significantly above customer baseline.,676
+RC00000518,TX0000049073,P2,open,High-risk merchant and amount significantly above customer baseline.,713
+RC00000519,TX0000049231,P2,open,High-risk merchant and amount significantly above customer baseline.,127
+RC00000520,TX0000049283,P1,open,PaySim-style fraud pattern: account depletion via transfer or cash-out.,179
+RC00000521,TX0000049453,P2,open,High-risk merchant and amount significantly above customer baseline.,349
+RC00000522,TX0000049611,P2,open,High-risk merchant and amount significantly above customer baseline.,507
+RC00000523,TX0000049648,P2,open,High-risk merchant and amount significantly above customer baseline.,544
+RC00000524,TX0000049685,P2,open,High-risk merchant and amount significantly above customer baseline.,581
+RC00000525,TX0000049806,P2,open,High-risk merchant and amount significantly above customer baseline.,702
+RC00000526,TX0000049843,P2,open,High-risk merchant and amount significantly above customer baseline.,739
