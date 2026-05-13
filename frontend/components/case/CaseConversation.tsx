@@ -7,6 +7,8 @@ import { CustomerHistoryMessage } from "@/components/agents/CustomerHistoryMessa
 import { MerchantAnalysisMessage } from "@/components/agents/MerchantAnalysisMessage";
 import { NetworkGraphMessage } from "@/components/agents/NetworkGraphMessage";
 import { PolicyLookupMessage } from "@/components/agents/PolicyLookupMessage";
+import { AnalystMessageBubble } from "@/components/agents/AnalystMessageBubble";
+import { SynthesisCard } from "./SynthesisCard";
 
 type Props = { entries: TimelineEntry[] };
 
@@ -28,13 +30,9 @@ function TimelineEntryView({ entry }: { entry: TimelineEntry }) {
     case "agent":
       return <AgentDispatch msg={entry} />;
     case "analyst":
+      return <AnalystMessageBubble msg={entry} />;
     case "synthesis":
-      // Replaced by dedicated components in commit 8.
-      return (
-        <div className="my-2 text-[10.5px] mono text-ink-faint">
-          [{entry.type} · {entry.ts}]
-        </div>
-      );
+      return <SynthesisCard result={entry} />;
   }
 }
 
