@@ -58,13 +58,7 @@ export default function CasePage({ params }: Props) {
     >
       <CaseHeader caseDetail={caseDetail} />
       <CaseConversation entries={timeline} />
-      <LiveStatusLine
-        text={
-          phase === "streaming"
-            ? "Agents are investigating · streaming events from mem9…"
-            : "Investigation complete · all agents have reported."
-        }
-      />
+      <LiveStatusLine />
       <QuickActionChips />
       <MessageInput caseId={id} />
     </AppShell>

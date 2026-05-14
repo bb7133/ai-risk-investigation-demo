@@ -1,9 +1,7 @@
 "use client";
 
-import { useEffect, useMemo, useRef } from "react";
-import type { AgentId, AgentMessage, TimelineEntry } from "@/types/api";
-import { AGENT_META } from "@/lib/agents";
-import { useCaseStreamStore } from "@/lib/store/case-stream";
+import { useEffect, useRef } from "react";
+import type { AgentMessage, TimelineEntry } from "@/types/api";
 import {
   SystemEventLine,
   DateSeparator,
@@ -13,32 +11,23 @@ import { MerchantAnalysisMessage } from "@/components/agents/MerchantAnalysisMes
 import { NetworkGraphMessage } from "@/components/agents/NetworkGraphMessage";
 import { PolicyLookupMessage } from "@/components/agents/PolicyLookupMessage";
 import { AnalystMessageBubble } from "@/components/agents/AnalystMessageBubble";
-import { TypingIndicator } from "@/components/agents/TypingIndicator";
 import { SynthesisCard } from "./SynthesisCard";
 
 type Props = { entries: TimelineEntry[] };
 
-const AGENT_IDS: AgentId[] = ["customer", "merchant", "network", "policy"];
-
 export function CaseConversation({ entries }: Props) {
-  const agentStatus = useCaseStreamStore((s) => s.agentStatus);
-
-  // Each agent currently mid-investigation gets a typing indicator
-  // pinned to the bottom of the conversation. Order matches AGENT_IDS
-  // so the stack is stable as lanes flip in/out of working.
-  const workingAgents = useMemo(
-    () => AGENT_IDS.filter((id) => agentStatus[id] === "working"),
-    [agentStatus],
-  );
-
-  // Auto-scroll to bottom whenever new content lands — keeps the live
-  // stream visible without the user having to chase it manually.
+  // Auto-anchor to the bottom whenever new entries land — messenger
+  // pattern. requestAnimationFrame defers the scroll until after the
+  // newly rendered entry has actually contributed to scrollHeight.
   const scrollRef = useRef<HTMLDivElement | null>(null);
   useEffect(() => {
-    if (scrollRef.current) {
-      scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
-    }
-  }, [entries.length, workingAgents.length]);
+    const el = scrollRef.current;
+    if (!el) return;
+    const id = requestAnimationFrame(() => {
+      el.scrollTop = el.scrollHeight;
+    });
+    return () => cancelAnimationFrame(id);
+  }, [entries.length]);
 
   return (
     <div
@@ -48,9 +37,6 @@ export function CaseConversation({ entries }: Props) {
       <DateSeparator label="Today" />
       {entries.map((entry, i) => (
         <TimelineEntryView key={i} entry={entry} />
-      ))}
-      {workingAgents.map((id) => (
-        <TypingIndicator key={id} agent={AGENT_META[id]} />
       ))}
     </div>
   );
