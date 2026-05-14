@@ -1,5 +1,10 @@
 import { apiFetch } from "./client";
-import type { Case, CaseListItem, TimelineEntry } from "@/types/api";
+import type {
+  Case,
+  CaseListItem,
+  SynthesisResolvedMeta,
+  TimelineEntry,
+} from "@/types/api";
 
 export function listCases(): Promise<CaseListItem[]> {
   return apiFetch<CaseListItem[]>("/api/cases");
@@ -15,4 +20,13 @@ export function getCaseTimeline(id: string): Promise<TimelineEntry[]> {
 
 export function createCase(): Promise<Case> {
   return apiFetch<Case>("/api/cases", { method: "POST" });
+}
+
+// Mark a case resolved server-side. Returns the dispute metadata that
+// the synthesis card uses to render the RESOLVED strip.
+export function executeCase(id: string): Promise<SynthesisResolvedMeta> {
+  return apiFetch<SynthesisResolvedMeta>(
+    `/api/cases/${encodeURIComponent(id)}/execute`,
+    { method: "POST" },
+  );
 }

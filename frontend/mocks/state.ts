@@ -1,4 +1,4 @@
-import type { Case, CaseListItem } from "@/types/api";
+import type { Case, CaseListItem, SynthesisResolvedMeta } from "@/types/api";
 import { CASES } from "./data/cases";
 import { SARAH_CHEN } from "./data/sarah-chen";
 import { caseStub } from "./data/case-stub";
@@ -95,4 +95,45 @@ export function createCase(): Case {
   CASE_LIST.unshift(toListItem(c));
   CASE_DETAILS.set(c.id, c);
   return c;
+}
+
+// ─── Resolved (analyst-Executed) state ─────────────────────────────────
+const RESOLVED_META = new Map<string, SynthesisResolvedMeta>();
+let nextDisputeNumber = 9921;
+
+export function markResolved(id: string): SynthesisResolvedMeta | null {
+  const detail = CASE_DETAILS.get(id) ?? null;
+  const inList = CASE_LIST.some((c) => c.id === id);
+  if (!detail && !inList) return null;
+
+  const existing = RESOLVED_META.get(id);
+  if (existing) {
+    syncStatusToResolved(id);
+    return existing;
+  }
+
+  const seed = Number.parseInt(id.replace(/\D/g, ""), 10) || 0;
+  const ringId = String(140 + (seed % 60)).padStart(3, "0");
+  const pattern =
+    id === SARAH_CHEN.id ? "cluster_RING_142" : `cluster_RING_${ringId}`;
+  const meta: SynthesisResolvedMeta = {
+    dispute_id: `DSP-${nextDisputeNumber}`,
+    pattern_saved: pattern,
+  };
+  nextDisputeNumber += 1;
+  RESOLVED_META.set(id, meta);
+  syncStatusToResolved(id);
+  return meta;
+}
+
+export function getResolvedMeta(id: string): SynthesisResolvedMeta | null {
+  return RESOLVED_META.get(id) ?? null;
+}
+
+function syncStatusToResolved(id: string) {
+  const detail = CASE_DETAILS.get(id);
+  if (detail) detail.status = "resolved";
+  for (const item of CASE_LIST) {
+    if (item.id === id) item.status = "resolved";
+  }
 }

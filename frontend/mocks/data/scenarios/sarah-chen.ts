@@ -28,14 +28,13 @@ const networkReply = TIMELINE_SARAH_CHEN[5] as AgentMessage;
 const policy = TIMELINE_SARAH_CHEN[6] as AgentMessage;
 const fullSynthesis = TIMELINE_SARAH_CHEN[7] as SynthesisResult;
 
-// Synthesis first lands in awaiting state; case_resolved attaches the
-// DSP-9921 metadata a few seconds later so the green strip appears as a
-// transition, not as the initial render.
+// Synthesis lands in awaiting state. case_resolved is no longer baked
+// into the scenario — the handler appends it only when MSW state shows
+// the analyst has clicked Execute on this case.
 const synthesisPending: SynthesisResult = {
   ...fullSynthesis,
   resolved: undefined,
 };
-const resolvedMeta = fullSynthesis.resolved!;
 
 // Total runtime ≈ 14.5s. Fast enough to demo repeatedly, slow enough
 // that each step is legible.
@@ -71,7 +70,8 @@ export const SARAH_CHEN_SCENARIO: Scenario = [
   { delay: 1500, event: { type: "agent_message",   entry: policy } },
   { delay: 100,  event: { type: "agent_status",    agent: "policy",   status: "done" } },
 
-  // Synthesis card drops in (awaiting), then resolves.
+  // Synthesis card lands in awaiting state. The analyst's Execute click
+  // (handled by the synthesis card itself) is what flips this case to
+  // resolved — no auto-resolution from the scenario.
   { delay: 1500, event: { type: "synthesis_ready", entry: synthesisPending } },
-  { delay: 3000, event: { type: "case_resolved",   resolved: resolvedMeta } },
 ];

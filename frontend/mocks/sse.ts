@@ -5,7 +5,15 @@ import type { Scenario } from "@/types/api";
 // "data: …\n\n" frame. When the consumer closes the stream we set a
 // cancel flag so the emit loop exits on its next tick instead of
 // throwing into a closed controller.
-export function scenarioToSSE(scenario: Scenario): Response {
+//
+// delayMultiplier scales every delay uniformly:
+//   1.0 → live stream (agents arrive over time)
+//   0   → snapshot   (every event fires immediately, fills the page
+//                     in a single tick)
+export function scenarioToSSE(
+  scenario: Scenario,
+  delayMultiplier = 1,
+): Response {
   const encoder = new TextEncoder();
   let cancelled = false;
 
@@ -13,7 +21,8 @@ export function scenarioToSSE(scenario: Scenario): Response {
     async start(controller) {
       try {
         for (const step of scenario) {
-          if (step.delay > 0) await sleep(step.delay);
+          const delay = step.delay * delayMultiplier;
+          if (delay > 0) await sleep(delay);
           if (cancelled) return;
           const line = `data: ${JSON.stringify(step.event)}\n\n`;
           controller.enqueue(encoder.encode(line));
