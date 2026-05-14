@@ -12,6 +12,7 @@ type CasesStore = {
   hydrated: boolean;
   hydrate: (cases: CaseListItem[]) => void;
   markRead: (id: string) => void;
+  addCase: (item: CaseListItem) => void;
 };
 
 export const useCasesStore = create<CasesStore>((set) => ({
@@ -22,4 +23,8 @@ export const useCasesStore = create<CasesStore>((set) => ({
     set((s) => ({
       cases: s.cases.map((c) => (c.id === id ? { ...c, unread: 0 } : c)),
     })),
+  // Prepend so the new case appears at the top of whatever section
+  // it belongs to (investigating cases sort within their section).
+  addCase: (item) =>
+    set((s) => ({ cases: [item, ...s.cases.filter((c) => c.id !== item.id)] })),
 }));

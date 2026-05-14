@@ -3,6 +3,8 @@
 import { useEffect, useRef, useState } from "react";
 import { Search } from "lucide-react";
 import { ANALYST_META } from "@/lib/agents";
+import { createCase } from "@/lib/api/cases";
+import { useCasesStore } from "@/lib/store/cases";
 import { useToastStore } from "@/lib/store/toast";
 
 // Sized to outlast the 8s toast auto-dismiss so the analyst can't
@@ -11,6 +13,7 @@ const NEW_CASE_COOLDOWN_MS = 10_000;
 
 export function TopBar() {
   const showToast = useToastStore((s) => s.show);
+  const addCase = useCasesStore((s) => s.addCase);
   const [cooling, setCooling] = useState(false);
   const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
@@ -20,11 +23,35 @@ export function TopBar() {
     };
   }, []);
 
-  const onNewCase = () => {
+  const onNewCase = async () => {
     if (cooling) return;
-    showToast();
     setCooling(true);
     timerRef.current = setTimeout(() => setCooling(false), NEW_CASE_COOLDOWN_MS);
+
+    try {
+      const created = await createCase();
+      addCase({
+        id: created.id,
+        customer: created.customer,
+        amount: created.amount,
+        city: created.city,
+        status: created.status,
+        priority: created.priority,
+        unread: created.unread,
+        when: created.when,
+      });
+      showToast({
+        caseId: created.id,
+        amount: created.transaction.amount,
+        merchant: created.transaction.merchant,
+        city: created.transaction.city,
+      });
+    } catch (err) {
+      console.error("[TopBar] createCase failed", err);
+      // Release the cooldown early on failure so the analyst can retry.
+      if (timerRef.current) clearTimeout(timerRef.current);
+      setCooling(false);
+    }
   };
 
   return (

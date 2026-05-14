@@ -12,3 +12,7 @@ export function getCase(id: string): Promise<Case> {
 export function getCaseTimeline(id: string): Promise<TimelineEntry[]> {
   return apiFetch<TimelineEntry[]>(`/api/cases/${encodeURIComponent(id)}/timeline`);
 }
+
+export function createCase(): Promise<Case> {
+  return apiFetch<Case>("/api/cases", { method: "POST" });
+}
