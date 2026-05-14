@@ -1,3 +1,6 @@
+"use client";
+
+import { useState } from "react";
 import type {
   CitedFile,
   SynthAction,
@@ -6,11 +9,25 @@ import type {
   Verdict,
 } from "@/types/api";
 import { AGENT_META } from "@/lib/agents";
+import { executeCase } from "@/lib/api/cases";
+import { useCaseStreamStore } from "@/lib/store/case-stream";
 
 // System-level recommendation block that sits at the end of the
-// conversation. Phase 1 renders the resolved state (no Execute behavior).
+// conversation. Lands in awaiting state — the analyst clicks Execute,
+// which round-trips to MSW, animates each action checkmark, then
+// dispatches case_resolved back into the stream store.
+
+type ExecutePhase = "ready" | "executing";
 
 export function SynthesisCard({ result }: { result: SynthesisResult }) {
+  const caseId = useCaseStreamStore((s) => s.caseDetail?.id ?? null);
+  const apply = useCaseStreamStore((s) => s.apply);
+
+  const [phase, setPhase] = useState<ExecutePhase>("ready");
+  const [actionStates, setActionStates] = useState<number[]>(() =>
+    result.actions.map(() => 0),
+  );
+
   const isResolved = !!result.resolved;
   const scoreColor =
     result.score >= 80
@@ -18,11 +35,41 @@ export function SynthesisCard({ result }: { result: SynthesisResult }) {
       : result.score >= 50
         ? "var(--sig-warn)"
         : "var(--sig-ok)";
-  const statusLabel = isResolved ? "✓ RESOLVED" : "AWAITING REVIEW";
-  const statusColor = isResolved ? "var(--sig-ok)" : "var(--sig-warn)";
+  const statusLabel = isResolved
+    ? "✓ RESOLVED"
+    : phase === "executing"
+      ? "EXECUTING"
+      : "AWAITING REVIEW";
+  const statusColor = isResolved
+    ? "var(--sig-ok)"
+    : phase === "executing"
+      ? "var(--sig-active)"
+      : "var(--sig-warn)";
   const leftEdge = isResolved
     ? "var(--sig-ok)"
     : "color-mix(in oklab, var(--sig-danger) 70%, white)";
+
+  // Display state for each action checkbox.
+  //   resolved → all filled (2)
+  //   executing or ready → reflect actionStates from the animation
+  const stateFor = (i: number): 0 | 1 | 2 =>
+    isResolved ? 2 : ((actionStates[i] ?? 0) as 0 | 1 | 2);
+
+  const onExecute = async () => {
+    if (phase !== "ready" || !caseId || isResolved) return;
+    setPhase("executing");
+    try {
+      const [meta] = await Promise.all([
+        executeCase(caseId),
+        animateActions(result.actions.length, setActionStates),
+      ]);
+      apply({ type: "case_resolved", resolved: meta });
+    } catch (err) {
+      console.error("[SynthesisCard] execute failed", err);
+      setActionStates(result.actions.map(() => 0));
+      setPhase("ready");
+    }
+  };
 
   return (
     <div
@@ -129,9 +176,37 @@ export function SynthesisCard({ result }: { result: SynthesisResult }) {
             <Label>ACTIONS ON EXECUTE</Label>
             <div className="mt-[6px] flex flex-col gap-[5px]">
               {result.actions.map((a, i) => (
-                <ActionRow key={i} action={a} />
+                <ActionRow key={i} action={a} state={stateFor(i)} />
               ))}
             </div>
+
+            {/* Execute CTA — visible until the case is resolved. */}
+            {!isResolved && (
+              <div className="mt-[14px] flex items-center gap-2">
+                {phase === "ready" ? (
+                  <button
+                    type="button"
+                    onClick={onExecute}
+                    className="rounded-md px-4 py-2 text-[12px] font-semibold tracking-[-0.1px] cursor-pointer text-white"
+                    style={{
+                      background: "var(--text-1)",
+                      border: "none",
+                      boxShadow: "var(--shadow-1)",
+                    }}
+                  >
+                    Execute {result.actions.length} actions →
+                  </button>
+                ) : (
+                  <span
+                    className="mono text-[11.5px] font-semibold"
+                    style={{ color: "var(--sig-active)" }}
+                  >
+                    Maya Singh approved · executing…
+                    <span className="stream-caret" />
+                  </span>
+                )}
+              </div>
+            )}
           </div>
 
           {result.resolved && <ResolvedStrip resolved={result.resolved} />}
@@ -139,6 +214,30 @@ export function SynthesisCard({ result }: { result: SynthesisResult }) {
       </div>
     </div>
   );
+}
+
+async function animateActions(
+  count: number,
+  setStates: React.Dispatch<React.SetStateAction<number[]>>,
+): Promise<void> {
+  for (let i = 0; i < count; i++) {
+    setStates((s) => {
+      const n = [...s];
+      n[i] = 1;
+      return n;
+    });
+    await sleep(520);
+    setStates((s) => {
+      const n = [...s];
+      n[i] = 2;
+      return n;
+    });
+    await sleep(180);
+  }
+}
+
+function sleep(ms: number): Promise<void> {
+  return new Promise((resolve) => setTimeout(resolve, ms));
 }
 
 function Label({ children }: { children: React.ReactNode }) {
@@ -280,22 +379,57 @@ function CitedPill({ cited }: { cited: CitedFile }) {
   );
 }
 
-function ActionRow({ action }: { action: SynthAction }) {
+function ActionRow({ action, state }: { action: SynthAction; state: 0 | 1 | 2 }) {
+  const c =
+    state === 2
+      ? "var(--sig-ok)"
+      : state === 1
+        ? "var(--sig-active)"
+        : "var(--text-4)";
   return (
     <div className="grid grid-cols-[14px_1fr_auto] gap-2 items-center">
       <span
-        className="w-3 h-3 rounded-full"
-        style={{ border: "1.5px solid var(--text-4)" }}
-      />
+        className={state === 1 ? "pulse-dot" : ""}
+        style={{
+          width: 12,
+          height: 12,
+          borderRadius: 12,
+          border: `1.5px solid ${c}`,
+          background: state === 2 ? c : "transparent",
+          display: "inline-flex",
+          alignItems: "center",
+          justifyContent: "center",
+        }}
+      >
+        {state === 2 && (
+          <svg
+            width="7"
+            height="7"
+            viewBox="0 0 8 8"
+            fill="none"
+            stroke="white"
+            strokeWidth="2.2"
+          >
+            <path d="M1 4l2 2 4-4" />
+          </svg>
+        )}
+      </span>
       <div>
-        <div className="text-[12px] text-ink-muted">{action.t}</div>
+        <div
+          className="text-[12px]"
+          style={{
+            color: state === 0 ? "var(--text-2)" : "var(--text-1)",
+          }}
+        >
+          {action.t}
+        </div>
         <div className="mono text-[10px] text-ink-faint mt-px">{action.d}</div>
       </div>
       <span
         className="mono text-[9.5px] font-bold tracking-[0.5px] min-w-[28px] text-right"
-        style={{ color: "var(--sig-active)" }}
+        style={{ color: c }}
       >
-        EXEC
+        {state === 0 ? "" : state === 1 ? "EXEC" : "OK"}
       </span>
     </div>
   );
@@ -316,12 +450,6 @@ function ResolvedStrip({ resolved }: { resolved: SynthesisResolvedMeta }) {
       >
         ✓ RESOLVED · {resolved.dispute_id} opened · pattern saved to mem9
       </span>
-      <button
-        type="button"
-        className="ml-auto rounded-[4px] border border-line bg-transparent px-[9px] py-[4px] text-[10.5px] text-ink-subtle cursor-pointer hover:bg-surface-muted"
-      >
-        Replay
-      </button>
     </div>
   );
 }
