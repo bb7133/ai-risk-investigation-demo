@@ -6,7 +6,7 @@ import { ChevronDown } from "lucide-react";
 import type { CaseListItem } from "@/types/api";
 import { useCasesStore } from "@/lib/store/cases";
 
-type SectionKey = "awaiting" | "investigating" | "resolved" | "all";
+type SectionKey = "investigating" | "resolved" | "all";
 
 type Section = {
   v: SectionKey;
@@ -17,16 +17,12 @@ type Section = {
 
 const SECTIONS: Section[] = [
   {
-    v: "awaiting",
-    label: "Awaiting my review",
-    sub: "High priority",
-    match: (c) => c.status === "awaiting" && c.priority === "high",
-  },
-  {
     v: "investigating",
     label: "Investigating",
-    sub: "In progress",
-    match: (c) => c.status === "investigating",
+    sub: "My active queue",
+    // Cases needing review are part of the active queue — they sort to
+    // the top of the same list rather than living in their own section.
+    match: (c) => c.status === "investigating" || c.status === "awaiting",
   },
   {
     v: "resolved",
@@ -46,11 +42,10 @@ type Props = { activeCaseId: string };
 
 export function CasesSidebar({ activeCaseId }: Props) {
   const cases = useCasesStore((s) => s.cases);
-  const [section, setSection] = useState<SectionKey>("awaiting");
+  const [section, setSection] = useState<SectionKey>("investigating");
 
   const counts = useMemo(() => {
     const c: Record<SectionKey, number> = {
-      awaiting: 0,
       investigating: 0,
       resolved: 0,
       all: 0,
@@ -63,7 +58,6 @@ export function CasesSidebar({ activeCaseId }: Props) {
 
   const unreads = useMemo(() => {
     const u: Record<SectionKey, number> = {
-      awaiting: 0,
       investigating: 0,
       resolved: 0,
       all: 0,
@@ -75,7 +69,16 @@ export function CasesSidebar({ activeCaseId }: Props) {
   }, [cases]);
 
   const active = SECTIONS.find((s) => s.v === section) ?? SECTIONS[0];
-  const items = useMemo(() => cases.filter(active.match), [cases, active]);
+  // Awaiting-review cases bubble to the top within whatever section is
+  // active. Within each priority band the original order (recency) holds.
+  const items = useMemo(() => {
+    const filtered = cases.filter(active.match);
+    return [...filtered].sort((a, b) => {
+      const aRank = a.status === "awaiting" ? 0 : 1;
+      const bRank = b.status === "awaiting" ? 0 : 1;
+      return aRank - bRank;
+    });
+  }, [cases, active]);
 
   return (
     <aside className="w-[264px] shrink-0 bg-surface border-r border-line flex flex-col min-h-0">
