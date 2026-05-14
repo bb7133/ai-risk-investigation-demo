@@ -1,0 +1,260 @@
+@import "tailwindcss";
+@import "tw-animate-css";
+@import "shadcn/tailwind.css";
+
+@custom-variant dark (&:is(.dark *));
+
+/* ─── CLAIMS design tokens — light mode ──────────────────────────────── */
+:root {
+  /* Surfaces */
+  --bg-0: #f7f7f4;
+  --bg-1: #ffffff;
+  --bg-2: #fafaf7;
+  --bg-3: #f0f0ec;
+  --bg-overlay: rgba(10, 16, 28, 0.42);
+
+  /* Borders */
+  --border-subtle: #ececea;
+  --border-base: #e3e4e2;
+  --border-strong: #cdd0d4;
+
+  /* Text */
+  --text-1: #0a1f44;
+  --text-2: #515f7a;
+  --text-3: #7a849a;
+  --text-4: #a3aab8;
+
+  /* Agent lane colors */
+  --c-customer: oklch(0.58 0.13 230);
+  --c-merchant: oklch(0.55 0.15 295);
+  --c-network:  oklch(0.62 0.16 50);
+  --c-policy:   oklch(0.55 0.13 160);
+
+  /* Semantic */
+  --sig-active: oklch(0.55 0.16 245);
+  --sig-warn:   oklch(0.66 0.16 65);
+  --sig-danger: oklch(0.58 0.20 25);
+  --sig-ok:     oklch(0.58 0.13 155);
+  --sig-idle:   #a3aab8;
+
+  /* Lane tints */
+  --tint-customer: color-mix(in oklab, oklch(0.58 0.13 230) 7%, white);
+  --tint-merchant: color-mix(in oklab, oklch(0.55 0.15 295) 7%, white);
+  --tint-network:  color-mix(in oklab, oklch(0.62 0.16 50)  7%, white);
+  --tint-policy:   color-mix(in oklab, oklch(0.55 0.13 160) 7%, white);
+
+  /* Type */
+  --font-sans: var(--font-geist-sans, 'Inter', -apple-system, system-ui, BlinkMacSystemFont, sans-serif);
+  --font-mono: var(--font-geist-mono, 'JetBrains Mono', 'IBM Plex Mono', ui-monospace, monospace);
+
+  /* Radii */
+  --r-1: 4px;
+  --r-2: 6px;
+  --r-3: 10px;
+
+  /* Shadows */
+  --shadow-1: 0 1px 1px rgba(10, 31, 68, 0.04), 0 1px 2px rgba(10, 31, 68, 0.05);
+  --shadow-2: 0 1px 2px rgba(10, 31, 68, 0.05), 0 4px 14px rgba(10, 31, 68, 0.06);
+  --shadow-pop: 0 12px 40px rgba(10, 31, 68, 0.18), 0 0 0 1px rgba(10, 31, 68, 0.05);
+
+  /* ─── shadcn aliases — map CLAIMS palette onto shadcn token names so
+        the shadcn ui/* primitives inherit our colors ──────────────── */
+  --background: var(--bg-0);
+  --foreground: var(--text-1);
+  --card: var(--bg-1);
+  --card-foreground: var(--text-1);
+  --popover: var(--bg-1);
+  --popover-foreground: var(--text-1);
+  --primary: var(--text-1);
+  --primary-foreground: #ffffff;
+  --secondary: var(--bg-2);
+  --secondary-foreground: var(--text-1);
+  --muted: var(--bg-2);
+  --muted-foreground: var(--text-2);
+  --accent: var(--bg-2);
+  --accent-foreground: var(--text-1);
+  --destructive: var(--sig-danger);
+  --border: var(--border-base);
+  --input: var(--border-base);
+  --ring: var(--text-3);
+  --chart-1: var(--c-customer);
+  --chart-2: var(--c-merchant);
+  --chart-3: var(--c-network);
+  --chart-4: var(--c-policy);
+  --chart-5: var(--sig-danger);
+  --radius: 0.5rem;
+  --sidebar: var(--bg-1);
+  --sidebar-foreground: var(--text-1);
+  --sidebar-primary: var(--text-1);
+  --sidebar-primary-foreground: #ffffff;
+  --sidebar-accent: var(--bg-2);
+  --sidebar-accent-foreground: var(--text-1);
+  --sidebar-border: var(--border-base);
+  --sidebar-ring: var(--text-3);
+}
+
+/* ─── Tailwind v4 theme bridge — generate utility classes ────────────── */
+@theme inline {
+  /* Surfaces → bg-bg-0, bg-surface, bg-surface-muted, bg-row */
+  --color-bg-0: var(--bg-0);
+  --color-surface: var(--bg-1);
+  --color-surface-muted: var(--bg-2);
+  --color-row: var(--bg-3);
+
+  /* Borders → border-line, border-line-subtle, border-line-strong */
+  --color-line: var(--border-base);
+  --color-line-subtle: var(--border-subtle);
+  --color-line-strong: var(--border-strong);
+
+  /* Text → text-ink, text-ink-muted, text-ink-subtle, text-ink-faint */
+  --color-ink: var(--text-1);
+  --color-ink-muted: var(--text-2);
+  --color-ink-subtle: var(--text-3);
+  --color-ink-faint: var(--text-4);
+
+  /* Agent colors → text-agent-customer, bg-agent-customer, etc. */
+  --color-agent-customer: var(--c-customer);
+  --color-agent-merchant: var(--c-merchant);
+  --color-agent-network: var(--c-network);
+  --color-agent-policy: var(--c-policy);
+
+  /* Lane tints → bg-tint-customer, etc. */
+  --color-tint-customer: var(--tint-customer);
+  --color-tint-merchant: var(--tint-merchant);
+  --color-tint-network: var(--tint-network);
+  --color-tint-policy: var(--tint-policy);
+
+  /* Semantic → text-severity-high, bg-finding, text-success, text-info */
+  --color-severity-high: var(--sig-danger);
+  --color-severity-medium: var(--sig-warn);
+  --color-finding: var(--sig-warn);
+  --color-success: var(--sig-ok);
+  --color-info: var(--sig-active);
+  --color-idle: var(--sig-idle);
+
+  /* shadcn-style tokens kept for shadcn ui/* primitives */
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  --color-chart-1: var(--chart-1);
+  --color-chart-2: var(--chart-2);
+  --color-chart-3: var(--chart-3);
+  --color-chart-4: var(--chart-4);
+  --color-chart-5: var(--chart-5);
+  --color-sidebar: var(--sidebar);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-ring: var(--sidebar-ring);
+
+  /* Type */
+  --font-sans: var(--font-sans);
+  --font-mono: var(--font-mono);
+
+  /* Radii */
+  --radius-sm: calc(var(--radius) * 0.6);
+  --radius-md: calc(var(--radius) * 0.8);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) * 1.4);
+  --radius-2xl: calc(var(--radius) * 1.8);
+}
+
+@layer base {
+  * {
+    @apply border-line outline-ring/50;
+  }
+  body {
+    @apply bg-bg-0 text-ink;
+    font-feature-settings: 'cv11', 'ss01', 'ss03';
+    font-variant-numeric: tabular-nums;
+    -webkit-font-smoothing: antialiased;
+    letter-spacing: -0.005em;
+  }
+  html {
+    @apply font-sans;
+  }
+  .mono {
+    font-family: var(--font-mono);
+    font-feature-settings: 'zero', 'ss02';
+    letter-spacing: 0;
+  }
+}
+
+/* ─── Animations from CLAIMS tokens-light.css ────────────────────────── */
+@keyframes claims-dot-pulse {
+  0%, 100% { opacity: 1; }
+  50%      { opacity: 0.35; }
+}
+.pulse-dot {
+  animation: claims-dot-pulse 1.6s ease-in-out infinite;
+}
+
+@keyframes claims-blink {
+  0%, 49%   { opacity: 1; }
+  50%, 100% { opacity: 0; }
+}
+.stream-caret {
+  display: inline-block;
+  width: 6px;
+  height: 11px;
+  background: currentColor;
+  vertical-align: -1px;
+  margin-left: 2px;
+  animation: claims-blink 1s steps(1) infinite;
+}
+
+@keyframes claims-rowin {
+  from { opacity: 0; transform: translateY(3px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+.row-in {
+  animation: claims-rowin 0.35s ease-out;
+}
+
+@keyframes claims-flash {
+  0%   { background: color-mix(in oklab, var(--sig-active) 18%, transparent); }
+  100% { background: transparent; }
+}
+.flash {
+  animation: claims-flash 1.4s ease-out;
+}
+
+/* Chat-style typing indicator. Three dots that rise + fall in a wave —
+   delay set per-dot via inline style. Background uses currentColor so
+   the indicator inherits whichever agent color the parent sets. */
+@keyframes typing-dot {
+  0%, 80%, 100% { transform: translateY(0); opacity: 0.35; }
+  40%           { transform: translateY(-3px); opacity: 1; }
+}
+.typing-dot {
+  display: inline-block;
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: currentColor;
+  animation: typing-dot 1.2s ease-in-out infinite;
+}
+
+/* Thin scrollbars to match reference */
+*::-webkit-scrollbar { width: 6px; height: 6px; }
+*::-webkit-scrollbar-thumb { background: rgba(10, 31, 68, 0.12); border-radius: 3px; }
+*::-webkit-scrollbar-thumb:hover { background: rgba(10, 31, 68, 0.22); }
+*::-webkit-scrollbar-track { background: transparent; }

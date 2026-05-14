@@ -1,0 +1,119 @@
+/* CLAIMS — design tokens. Dark fintech, Stripe-clean. */
+
+:root {
+  /* Surfaces — near-black navy, subtle warm undertone for trust */
+  --bg-0: #0a0d12;          /* deepest, app background */
+  --bg-1: #10141b;          /* panel background */
+  --bg-2: #161b24;          /* elevated panel */
+  --bg-3: #1d2330;          /* hover / row highlight */
+  --bg-overlay: rgba(10, 13, 18, 0.72);
+
+  /* Borders — hairline, low contrast */
+  --border-subtle: rgba(255, 255, 255, 0.06);
+  --border: rgba(255, 255, 255, 0.10);
+  --border-strong: rgba(255, 255, 255, 0.16);
+
+  /* Text */
+  --text-1: #e6ebf2;        /* primary */
+  --text-2: #a6b0bf;        /* secondary */
+  --text-3: #6b7585;        /* tertiary, captions */
+  --text-4: #4a5260;        /* disabled / placeholders */
+
+  /* Agent lane colors — distinct hue per agent, all share saturation/lightness */
+  --c-customer: oklch(0.72 0.13 220);   /* cyan — Customer History */
+  --c-merchant: oklch(0.72 0.13 295);   /* violet — Merchant Analysis */
+  --c-network:  oklch(0.78 0.14 75);    /* amber — Network Graph */
+  --c-policy:   oklch(0.74 0.13 155);   /* green — Policy Lookup */
+
+  /* Semantic */
+  --sig-active: oklch(0.78 0.14 220);   /* cyan — agent working */
+  --sig-warn:   oklch(0.80 0.15 75);    /* amber — needs attention */
+  --sig-danger: oklch(0.68 0.18 25);    /* red — high-risk */
+  --sig-ok:     oklch(0.74 0.13 155);   /* green — resolved */
+  --sig-idle:   #4a5260;
+
+  /* Lane tints (background fills @ ~6% alpha for chips/cells) */
+  --tint-customer: color-mix(in oklab, oklch(0.72 0.13 220) 12%, transparent);
+  --tint-merchant: color-mix(in oklab, oklch(0.72 0.13 295) 12%, transparent);
+  --tint-network:  color-mix(in oklab, oklch(0.78 0.14 75)  12%, transparent);
+  --tint-policy:   color-mix(in oklab, oklch(0.74 0.13 155) 12%, transparent);
+
+  /* Type */
+  --font-sans: 'Inter', -apple-system, system-ui, BlinkMacSystemFont, sans-serif;
+  --font-mono: 'JetBrains Mono', 'IBM Plex Mono', ui-monospace, monospace;
+
+  /* Radii */
+  --r-1: 4px;
+  --r-2: 6px;
+  --r-3: 10px;
+
+  /* Shadows */
+  --shadow-1: 0 1px 0 rgba(255,255,255,0.03) inset, 0 1px 2px rgba(0,0,0,0.4);
+  --shadow-pop: 0 12px 40px rgba(0,0,0,0.5), 0 0 0 1px rgba(255,255,255,0.05);
+}
+
+/* IBM Plex token override class — applied to artboards in the IBM Plex direction */
+.font-plex {
+  --font-sans: 'IBM Plex Sans', system-ui, sans-serif;
+  --font-mono: 'IBM Plex Mono', ui-monospace, monospace;
+}
+
+/* Base reset for content inside artboards */
+.claims-root {
+  font-family: var(--font-sans);
+  color: var(--text-1);
+  background: var(--bg-0);
+  font-feature-settings: 'cv11', 'ss01', 'ss03';
+  font-variant-numeric: tabular-nums;
+  -webkit-font-smoothing: antialiased;
+  letter-spacing: -0.005em;
+}
+
+.claims-root *,
+.claims-root *::before,
+.claims-root *::after {
+  box-sizing: border-box;
+}
+
+.claims-root .mono {
+  font-family: var(--font-mono);
+  font-feature-settings: 'zero', 'ss02';
+  letter-spacing: 0;
+}
+
+/* Pulse animation for active agents */
+@keyframes claims-pulse {
+  0%, 100% { opacity: 1; }
+  50%      { opacity: 0.4; }
+}
+.claims-root .pulse-dot {
+  animation: claims-pulse 1.6s ease-in-out infinite;
+}
+
+/* Streaming caret for thinking traces */
+@keyframes claims-blink {
+  0%, 49%   { opacity: 1; }
+  50%, 100% { opacity: 0; }
+}
+.claims-root .stream-caret {
+  display: inline-block;
+  width: 6px;
+  height: 11px;
+  background: currentColor;
+  vertical-align: -1px;
+  margin-left: 2px;
+  animation: claims-blink 1s steps(1) infinite;
+}
+
+/* Subtle row enter */
+@keyframes claims-rowin {
+  from { opacity: 0; transform: translateY(2px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+.claims-root .row-in {
+  animation: claims-rowin 0.3s ease-out;
+}
+
+/* Scrollbar — thin and dark inside artboards */
+.claims-root *::-webkit-scrollbar { width: 6px; height: 6px; }
+.claims-root *::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.08); border-radius: 3px; }
