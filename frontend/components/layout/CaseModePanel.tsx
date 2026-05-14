@@ -1,23 +1,17 @@
-import type { Case, AgentId } from "@/types/api";
+"use client";
+
+import type { AgentId, AgentLaneStatus, Case } from "@/types/api";
 import { AGENT_META, TEAM_MEMBERS } from "@/lib/agents";
 import { STACK_DATA } from "@/mocks/data/stack";
-
-type AgentLaneStatus = "done" | "working" | "waiting" | "idle";
-
-// Per-agent status shown in the right panel's agents list. Matches the
-// mockup state: customer + merchant + policy DONE, network still
-// WORKING (cluster lookup) for visual richness.
-const AGENT_STATUS: Record<AgentId, AgentLaneStatus> = {
-  customer: "done",
-  merchant: "done",
-  network: "working",
-  policy: "done",
-};
+import { useCaseStreamStore } from "@/lib/store/case-stream";
 
 type Props = { caseDetail: Case };
 
 export function CaseModePanel({ caseDetail }: Props) {
   const c = caseDetail.customer_detail;
+  // Live agent lane status comes from the SSE stream — flips
+  // idle → working → done as agent_status events arrive.
+  const agentStatus = useCaseStreamStore((s) => s.agentStatus);
   return (
     <div className="flex-1 overflow-auto min-h-0">
       {/* CUSTOMER */}
@@ -72,7 +66,7 @@ export function CaseModePanel({ caseDetail }: Props) {
       <PanelLabel>AGENTS</PanelLabel>
       <div className="px-[14px] pb-3 flex flex-col gap-[10px]">
         {Object.values(AGENT_META).map((a) => (
-          <AgentRow key={a.id} agentId={a.id} status={AGENT_STATUS[a.id]} />
+          <AgentRow key={a.id} agentId={a.id} status={agentStatus[a.id]} />
         ))}
       </div>
 
