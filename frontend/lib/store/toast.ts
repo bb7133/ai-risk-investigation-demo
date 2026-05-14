@@ -2,26 +2,20 @@
 
 import { create } from "zustand";
 
-export type Toast = {
-  id: number;
-  title: string;
-  subtitle?: string;
-};
+// The "New case" toast is a single push-notification card — only one
+// is ever on-screen. `key` bumps each time the analyst hits the button
+// so the animation re-fires even if the toast was already open.
 
 type ToastStore = {
-  toasts: Toast[];
-  show: (title: string, subtitle?: string) => void;
-  dismiss: (id: number) => void;
+  open: boolean;
+  key: number;
+  show: () => void;
+  dismiss: () => void;
 };
 
-let nextId = 1;
-
 export const useToastStore = create<ToastStore>((set) => ({
-  toasts: [],
-  show: (title, subtitle) =>
-    set((s) => ({
-      toasts: [...s.toasts, { id: nextId++, title, subtitle }],
-    })),
-  dismiss: (id) =>
-    set((s) => ({ toasts: s.toasts.filter((t) => t.id !== id) })),
+  open: false,
+  key: 0,
+  show: () => set((s) => ({ open: true, key: s.key + 1 })),
+  dismiss: () => set({ open: false }),
 }));
