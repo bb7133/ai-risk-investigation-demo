@@ -39,10 +39,9 @@ export function LiveStatusLine() {
 
   return (
     <div
-      className="flex items-center gap-2 px-[18px] py-[6px] text-[11px] text-ink-subtle h-[28px]"
+      className="flex items-center gap-2 px-[18px] py-[6px] text-[11px] h-[28px]"
       style={{ color: "var(--text-3)" }}
     >
-      <PresenceDots agents={working} />
       <span>{typingLabel(working)}</span>
       <span className="flex items-end gap-[2px] mb-px" aria-hidden>
         <span className="typing-dot" />
@@ -50,24 +49,6 @@ export function LiveStatusLine() {
         <span className="typing-dot" style={{ animationDelay: "360ms" }} />
       </span>
     </div>
-  );
-}
-
-function PresenceDots({ agents }: { agents: AgentMeta[] }) {
-  return (
-    <span className="inline-flex items-center -space-x-[3px] shrink-0">
-      {agents.map((a) => (
-        <span
-          key={a.id}
-          title={a.name}
-          className="w-[10px] h-[10px] rounded-full"
-          style={{
-            background: a.color,
-            border: "1.5px solid var(--bg-1)",
-          }}
-        />
-      ))}
-    </span>
   );
 }
 
