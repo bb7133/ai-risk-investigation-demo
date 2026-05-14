@@ -42,12 +42,12 @@ export function LiveStatusLine() {
       className="flex items-center gap-2 px-[18px] py-[6px] text-[11px] h-[28px]"
       style={{ color: "var(--text-3)" }}
     >
-      <span>{typingLabel(working)}</span>
       <span className="flex items-end gap-[2px] mb-px" aria-hidden>
         <span className="typing-dot" />
         <span className="typing-dot" style={{ animationDelay: "180ms" }} />
         <span className="typing-dot" style={{ animationDelay: "360ms" }} />
       </span>
+      <span>{typingLabel(working)}</span>
     </div>
   );
 }
