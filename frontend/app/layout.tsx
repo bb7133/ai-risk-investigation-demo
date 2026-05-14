@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import { MSWProvider } from "@/lib/msw/init";
+import { ToastHost } from "@/components/ui/ToastHost";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -28,6 +29,7 @@ export default function RootLayout({
     >
       <body className="min-h-full flex flex-col bg-bg-0 text-ink">
         <MSWProvider>{children}</MSWProvider>
+        <ToastHost />
       </body>
     </html>
   );

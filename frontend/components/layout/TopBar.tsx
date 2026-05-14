@@ -1,7 +1,25 @@
+"use client";
+
 import { Search } from "lucide-react";
 import { ANALYST_META } from "@/lib/agents";
+import { useCasesStore } from "@/lib/store/cases";
+import { useToastStore } from "@/lib/store/toast";
 
 export function TopBar() {
+  const cases = useCasesStore((s) => s.cases);
+  const showToast = useToastStore((s) => s.show);
+
+  function onNewCase() {
+    // Fake a new case id by incrementing the largest CASE-#### we know
+    // about. This is visual-only — no real case lands in the store.
+    const maxId = cases.reduce((m, c) => {
+      const n = Number.parseInt(c.id.replace(/\D/g, ""), 10);
+      return Number.isFinite(n) && n > m ? n : m;
+    }, 2461);
+    const newId = `CASE-${maxId + 1}`;
+    showToast("New case created", newId);
+  }
+
   return (
     <header className="flex items-center gap-3 border-b border-line bg-surface px-4 py-2 shrink-0">
       {/* Brand */}
@@ -41,6 +59,7 @@ export function TopBar() {
       <div className="flex items-center gap-[10px]">
         <button
           type="button"
+          onClick={onNewCase}
           className="rounded-[5px] border border-line bg-transparent px-[10px] py-[5px] text-[11.5px] text-ink-muted hover:bg-surface-muted cursor-pointer"
         >
           New case
