@@ -1,12 +1,31 @@
 "use client";
 
+import { useEffect, useRef, useState } from "react";
 import { Search } from "lucide-react";
 import { ANALYST_META } from "@/lib/agents";
 import { useToastStore } from "@/lib/store/toast";
 
+// Sized to outlast the 8s toast auto-dismiss so the analyst can't
+// stack pushes by spamming the button.
+const NEW_CASE_COOLDOWN_MS = 10_000;
+
 export function TopBar() {
   const showToast = useToastStore((s) => s.show);
-  const onNewCase = () => showToast();
+  const [cooling, setCooling] = useState(false);
+  const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  useEffect(() => {
+    return () => {
+      if (timerRef.current) clearTimeout(timerRef.current);
+    };
+  }, []);
+
+  const onNewCase = () => {
+    if (cooling) return;
+    showToast();
+    setCooling(true);
+    timerRef.current = setTimeout(() => setCooling(false), NEW_CASE_COOLDOWN_MS);
+  };
 
   return (
     <header className="flex items-center gap-3 border-b border-line bg-surface px-4 py-2 shrink-0">
@@ -48,7 +67,8 @@ export function TopBar() {
         <button
           type="button"
           onClick={onNewCase}
-          className="rounded-[5px] border border-line bg-transparent px-[10px] py-[5px] text-[11.5px] text-ink-muted hover:bg-surface-muted cursor-pointer"
+          disabled={cooling}
+          className="rounded-[5px] border border-line bg-transparent px-[10px] py-[5px] text-[11.5px] text-ink-muted hover:bg-surface-muted cursor-pointer disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:bg-transparent"
         >
           New case
         </button>
