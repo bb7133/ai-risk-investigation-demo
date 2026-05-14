@@ -9,10 +9,10 @@ import { CustomerScatter } from "@/components/viz/CustomerScatter";
 export function CustomerHistoryMessage({ msg }: { msg: Msg }) {
   return (
     <AgentMessageShell agent={AGENT_META.customer} ts={msg.ts}>
-      <Narrative text={msg.narrative} />
-      <CustomerScatter viz={msg.viz} />
-      <FindingBox text={msg.finding} />
-      <InspectQuery items={msg.inspect} agent="customer" />
+      <Narrative text={msg.narrative} mention={msg.mention} />
+      {msg.viz && <CustomerScatter viz={msg.viz} />}
+      {msg.finding && <FindingBox text={msg.finding} />}
+      {msg.inspect && <InspectQuery items={msg.inspect} agent="customer" />}
     </AgentMessageShell>
   );
 }

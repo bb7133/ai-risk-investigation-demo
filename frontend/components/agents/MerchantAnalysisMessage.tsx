@@ -9,10 +9,10 @@ import { MerchantGauge } from "@/components/viz/MerchantGauge";
 export function MerchantAnalysisMessage({ msg }: { msg: Msg }) {
   return (
     <AgentMessageShell agent={AGENT_META.merchant} ts={msg.ts}>
-      <Narrative text={msg.narrative} />
-      <MerchantGauge viz={msg.viz} />
-      <FindingBox text={msg.finding} />
-      <InspectQuery items={msg.inspect} agent="merchant" />
+      <Narrative text={msg.narrative} mention={msg.mention} />
+      {msg.viz && <MerchantGauge viz={msg.viz} />}
+      {msg.finding && <FindingBox text={msg.finding} />}
+      {msg.inspect && <InspectQuery items={msg.inspect} agent="merchant" />}
     </AgentMessageShell>
   );
 }

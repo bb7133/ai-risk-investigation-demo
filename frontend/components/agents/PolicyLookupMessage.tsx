@@ -9,10 +9,10 @@ import { PolicyDecisionCard } from "@/components/viz/PolicyDecisionCard";
 export function PolicyLookupMessage({ msg }: { msg: Msg }) {
   return (
     <AgentMessageShell agent={AGENT_META.policy} ts={msg.ts}>
-      <Narrative text={msg.narrative} />
-      <PolicyDecisionCard viz={msg.viz} />
-      <FindingBox text={msg.finding} />
-      <InspectQuery items={msg.inspect} agent="policy" />
+      <Narrative text={msg.narrative} mention={msg.mention} />
+      {msg.viz && <PolicyDecisionCard viz={msg.viz} />}
+      {msg.finding && <FindingBox text={msg.finding} />}
+      {msg.inspect && <InspectQuery items={msg.inspect} agent="policy" />}
     </AgentMessageShell>
   );
 }

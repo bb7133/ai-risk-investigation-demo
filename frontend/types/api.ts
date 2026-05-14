@@ -33,9 +33,12 @@ export type CustomerHistoryMessage = {
   agent: "customer";
   ts: string;
   narrative: string;
-  viz: CustomerHistoryViz;
-  finding: string;
-  inspect: InspectItem[];
+  mention?: Mention;
+  // Optional so stub scenarios can emit a narrative-only message
+  // without authoring the full scatter + finding + inspect package.
+  viz?: CustomerHistoryViz;
+  finding?: string;
+  inspect?: InspectItem[];
 };
 
 export type MerchantGaugeViz = {
@@ -50,9 +53,10 @@ export type MerchantAnalysisMessage = {
   agent: "merchant";
   ts: string;
   narrative: string;
-  viz: MerchantGaugeViz;
-  finding: string;
-  inspect: InspectItem[];
+  mention?: Mention;
+  viz?: MerchantGaugeViz;
+  finding?: string;
+  inspect?: InspectItem[];
 };
 
 export type NetworkNodeKind = "receiver" | "victim" | "mule" | "settle" | "neutral";
@@ -99,9 +103,10 @@ export type PolicyLookupMessage = {
   agent: "policy";
   ts: string;
   narrative: string;
-  viz: PolicyLookupViz;
-  finding: string;
-  inspect: InspectItem[];
+  mention?: Mention;
+  viz?: PolicyLookupViz;
+  finding?: string;
+  inspect?: InspectItem[];
 };
 
 export type AgentMessage =
