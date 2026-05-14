@@ -162,6 +162,38 @@ export type TimelineEntry =
   | AnalystMessage
   | SynthesisResult;
 
+// ─── Case event stream (SSE contract) ───────────────────────────────────
+// The backend exposes /api/cases/:id/events as a text/event-stream that
+// emits these events over the case lifecycle. The frontend consumes them
+// and builds up timeline + agent-status state. Phase 1 simulates this
+// stream via MSW; swapping in the real backend means pointing the fetch
+// at a different URL with the same event shapes.
+
+export type AgentLaneStatus = "idle" | "working" | "waiting" | "done";
+
+export type CaseEvent =
+  // First event on a stream — provides the static case header.
+  | { type: "case_meta"; case: Case }
+  // System lines in the conversation (case opened, auto-triage, etc.).
+  | { type: "system_event"; entry: SystemEvent }
+  // An agent lane changes status (idle → working → done).
+  | { type: "agent_status"; agent: AgentId; status: AgentLaneStatus }
+  // A full agent message lands in the conversation.
+  | { type: "agent_message"; entry: AgentMessage }
+  // Maya (analyst) intervenes.
+  | { type: "analyst_message"; entry: AnalystMessage }
+  // Synthesis card emits in awaiting state.
+  | { type: "synthesis_ready"; entry: SynthesisResult }
+  // Resolved metadata attaches to the synthesis card.
+  | { type: "case_resolved"; resolved: SynthesisResolvedMeta };
+
+// A scenario is the script that drives the MSW SSE handler. `delay` is
+// milliseconds to wait before emitting `event` (relative to the previous
+// step). The real backend doesn't use this — it emits events as agents
+// actually report — but the contract on the wire is the same.
+export type ScenarioStep = { delay: number; event: CaseEvent };
+export type Scenario = ScenarioStep[];
+
 // ─── Customer / transaction / case ──────────────────────────────────────
 export type CustomerTier = "Premium" | "Business" | "Standard";
 
