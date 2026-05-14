@@ -1,45 +1,41 @@
 import { http, HttpResponse } from "msw";
 
-import { CASES } from "./data/cases";
 import { SARAH_CHEN } from "./data/sarah-chen";
 import { TIMELINE_SARAH_CHEN } from "./data/sarah-chen-timeline";
-import { caseStub, timelineStub } from "./data/case-stub";
+import { timelineStub } from "./data/case-stub";
 import { scenarioFor } from "./data/scenarios";
 import { scenarioToSSE } from "./sse";
+import { createCase, getCaseDetail, listCases } from "./state";
 
-// Phase 1: Sarah Chen (CASE-2461) has a full timeline. Every other case
-// in the sidebar returns a thin stub so navigation does not 404 and the
-// "click to read" flow still feels coherent.
-
-function detailFor(id: string) {
-  if (id === SARAH_CHEN.id) return SARAH_CHEN;
-  const item = CASES.find((c) => c.id === id);
-  return item ? caseStub(item) : null;
-}
+// All endpoints route through mocks/state.ts — a per-tab mutable store
+// seeded with the static sidebar list + Sarah Chen's full Case. POST
+// /api/cases mutates that store so subsequent GETs see the new case.
 
 export const handlers = [
-  http.get("/api/cases", () => HttpResponse.json(CASES)),
+  http.get("/api/cases", () => HttpResponse.json(listCases())),
+
+  http.post("/api/cases", () => {
+    const created = createCase();
+    return HttpResponse.json(created, { status: 201 });
+  }),
 
   http.get("/api/cases/:id", ({ params }) => {
-    const detail = detailFor(String(params.id));
+    const detail = getCaseDetail(String(params.id));
     if (detail) return HttpResponse.json(detail);
     return HttpResponse.json({ error: "case not found", id: params.id }, { status: 404 });
   }),
 
   http.get("/api/cases/:id/timeline", ({ params }) => {
     if (params.id === SARAH_CHEN.id) return HttpResponse.json(TIMELINE_SARAH_CHEN);
-    const item = CASES.find((c) => c.id === params.id);
-    if (item) return HttpResponse.json(timelineStub(item));
+    const detail = getCaseDetail(String(params.id));
+    if (detail) return HttpResponse.json(timelineStub(detail));
     return HttpResponse.json({ error: "case not found", id: params.id }, { status: 404 });
   }),
 
-  // SSE stream: streams the case lifecycle as discrete events. The
-  // consumer (lib/hooks/useCaseEvents) builds up timeline + agent-status
-  // state from these events. Real backend replaces this handler with an
-  // actual SSE endpoint; the event shapes stay the same.
+  // SSE stream — see lib/hooks/use-case-events.ts on the consumer side.
   http.get("/api/cases/:id/events", ({ params }) => {
     const id = String(params.id);
-    const scenario = scenarioFor(id, detailFor(id));
+    const scenario = scenarioFor(id, getCaseDetail(id));
     if (!scenario) {
       return HttpResponse.json({ error: "case not found", id }, { status: 404 });
     }
