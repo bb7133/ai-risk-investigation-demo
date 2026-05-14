@@ -1,8 +1,9 @@
 "use client";
 
 import { use, useEffect, useState } from "react";
-import type { Case, CaseListItem, TimelineEntry } from "@/types/api";
+import type { Case, TimelineEntry } from "@/types/api";
 import { listCases, getCase, getCaseTimeline } from "@/lib/api/cases";
+import { useCasesStore } from "@/lib/store/cases";
 import { AppShell } from "@/components/layout/AppShell";
 import { RightPanel } from "@/components/layout/RightPanel";
 import { CaseHeader } from "@/components/case/CaseHeader";
@@ -14,7 +15,6 @@ import { MessageInput } from "@/components/case/MessageInput";
 type Props = { params: Promise<{ id: string }> };
 
 type CasePageData = {
-  cases: CaseListItem[];
   caseDetail: Case;
   timeline: TimelineEntry[];
 };
@@ -24,14 +24,22 @@ export default function CasePage({ params }: Props) {
   const [data, setData] = useState<CasePageData | null>(null);
   const [error, setError] = useState<string | null>(null);
 
+  // Hydrate the cases sidebar store once per session. Subsequent
+  // navigations skip this and only refetch the per-case data.
+  useEffect(() => {
+    if (useCasesStore.getState().hydrated) return;
+    listCases().then((cases) => useCasesStore.getState().hydrate(cases));
+  }, []);
+
+  // Per-case data refetches on id change.
   useEffect(() => {
     let cancelled = false;
     setData(null);
     setError(null);
-    Promise.all([listCases(), getCase(id), getCaseTimeline(id)])
-      .then(([cases, caseDetail, timeline]) => {
+    Promise.all([getCase(id), getCaseTimeline(id)])
+      .then(([caseDetail, timeline]) => {
         if (cancelled) return;
-        setData({ cases, caseDetail, timeline });
+        setData({ caseDetail, timeline });
       })
       .catch((e: unknown) => {
         if (cancelled) return;
@@ -58,15 +66,9 @@ export default function CasePage({ params }: Props) {
     );
   }
 
-  const awaitingCount = data.cases.length;
-  const highPriorityUnread = data.cases.reduce((s, c) => s + c.unread, 0);
-
   return (
     <AppShell
-      cases={data.cases}
       activeCaseId={id}
-      awaitingCount={awaitingCount}
-      highPriorityUnread={highPriorityUnread}
       rightPanel={<RightPanel caseDetail={data.caseDetail} />}
     >
       <CaseHeader caseDetail={data.caseDetail} />
