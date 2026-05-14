@@ -48,18 +48,18 @@ export function CaseModePanel({ caseDetail }: Props) {
         </div>
       </div>
 
-      {/* CONTACT CALLOUT */}
+      {/* NOTE */}
       {caseDetail.contact && (
         <>
-          <PanelLabel>CUSTOMER CONTACT</PanelLabel>
+          <PanelLabel>NOTE</PanelLabel>
           <div className="px-[14px] pb-3">
             <div
               className="rounded-[5px] px-[10px] py-[8px] text-[11.5px] italic leading-[1.5]"
               style={{
-                background: "color-mix(in oklab, var(--c-customer) 5%, white)",
-                border: "1px solid color-mix(in oklab, var(--c-customer) 20%, transparent)",
-                borderLeft: "3px solid var(--c-customer)",
-                color: "var(--text-1)",
+                background: "var(--bg-2)",
+                border: "1px solid var(--border-subtle)",
+                borderLeft: "3px solid var(--border-strong)",
+                color: "var(--text-2)",
               }}
             >
               {stripPrefix(caseDetail.contact)}
@@ -69,7 +69,7 @@ export function CaseModePanel({ caseDetail }: Props) {
       )}
 
       {/* AGENTS */}
-      <PanelLabel right={<RightLink label="go to lane →" />}>AGENTS</PanelLabel>
+      <PanelLabel>AGENTS</PanelLabel>
       <div className="px-[14px] pb-3 flex flex-col gap-[10px]">
         {Object.values(AGENT_META).map((a) => (
           <AgentRow key={a.id} agentId={a.id} status={AGENT_STATUS[a.id]} />
