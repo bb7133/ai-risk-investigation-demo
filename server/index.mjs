@@ -1,6 +1,8 @@
 import http from "node:http";
 import fs from "node:fs";
+import os from "node:os";
 import path from "node:path";
+import { spawn } from "node:child_process";
 import { fileURLToPath } from "node:url";
 import mysql from "mysql2/promise";
 
@@ -13,6 +15,12 @@ let generatedDataCache = null;
 const port = Number(process.env.PORT || 8787);
 const tidbPool = process.env.DEMO_REPOSITORY === "tidb" ? await createTidbPool() : null;
 const repositoryName = tidbPool ? "tidb" : "local-file";
+const agentProvider = (process.env.RISK_AGENT_PROVIDER || (process.env.OPENAI_API_KEY ? "openai" : "deterministic")).toLowerCase();
+const agentModel = process.env.RISK_AGENT_MODEL || process.env.OPENAI_MODEL || "gpt-4.1-mini";
+const agentBaseUrl = (process.env.OPENAI_BASE_URL || "https://api.openai.com/v1").replace(/\/$/, "");
+const agentTimeoutMs = Number(process.env.RISK_AGENT_TIMEOUT_MS || 25000);
+const codexBin = process.env.RISK_CODEX_BIN || "/opt/homebrew/bin/codex";
+const codexModel = process.env.RISK_CODEX_MODEL || "";
 
 async function createTidbPool() {
   const sslCa = process.env.TIDB_DEMO_SSL_CA && fs.existsSync(process.env.TIDB_DEMO_SSL_CA)
@@ -37,6 +45,22 @@ function requiredEnv(name) {
   return value;
 }
 
+function isCodexProvider() {
+  return agentProvider === "codex" || agentProvider === "codex-cli";
+}
+
+function activeAgentRuntime() {
+  if (isCodexProvider()) return "codex-cli";
+  if (agentProvider === "openai" && process.env.OPENAI_API_KEY) return "openai";
+  return "deterministic-fallback";
+}
+
+function activeAgentModel() {
+  if (isCodexProvider()) return codexModel || "codex-default";
+  if (agentProvider === "openai" && process.env.OPENAI_API_KEY) return agentModel;
+  return "local-skill-fallback";
+}
+
 function json(res, status, body) {
   const bytes = Buffer.from(JSON.stringify(body, null, 2));
   res.writeHead(status, {
@@ -47,6 +71,17 @@ function json(res, status, body) {
     "access-control-allow-headers": "content-type"
   });
   res.end(bytes);
+}
+
+async function readJsonBody(req) {
+  const chunks = [];
+  for await (const chunk of req) chunks.push(chunk);
+  if (chunks.length === 0) return {};
+  try {
+    return JSON.parse(Buffer.concat(chunks).toString("utf8") || "{}");
+  } catch {
+    return {};
+  }
 }
 
 function notFound(res) {
@@ -296,9 +331,12 @@ async function listTidbCases({ source, priority, query, limit }) {
         rc.priority,
         rc.status,
         rc.reason,
+        rc.unread,
+        rc.contact,
         rc.created_at AS createdAt,
         c.name AS customer,
         m.name AS merchant,
+        m.city,
         CAST(t.amount AS DOUBLE) AS amount,
         t.currency,
         m.risk_score AS merchantRisk,
@@ -346,6 +384,11 @@ async function getCaseBundle(caseId) {
   return caseBundle(caseId);
 }
 
+async function getCaseTimeline(caseId) {
+  const bundle = await getCaseBundle(caseId);
+  return bundle ? await buildAgentTimeline(bundle) : [];
+}
+
 async function getTidbCaseBundle(caseId) {
   const [rows] = await tidbPool.query(
     `
@@ -356,6 +399,9 @@ async function getTidbCaseBundle(caseId) {
         rc.priority,
         rc.status AS caseStatus,
         rc.reason,
+        rc.unread,
+        rc.contact,
+        rc.resolved_at AS resolvedAt,
         rc.created_at AS caseCreatedAt,
         t.id AS txId,
         t.customer_id AS customerId,
@@ -369,9 +415,15 @@ async function getTidbCaseBundle(caseId) {
         c.country AS customerCountry,
         c.created_at AS customerCreatedAt,
         CAST(c.median_payment AS DOUBLE) AS medianPayment,
+        c.email,
+        c.phone,
+        c.initials,
+        c.member_since AS memberSince,
+        c.tier,
         m.name AS merchantName,
         m.category AS merchantCategory,
         m.country AS merchantCountry,
+        m.city AS merchantCity,
         m.risk_score AS merchantRisk
       FROM risk_cases rc
       JOIN transactions t ON t.id = rc.transaction_id
@@ -411,7 +463,10 @@ async function getTidbCaseBundle(caseId) {
       priority: row.priority,
       status: row.caseStatus,
       reason: row.reason,
-      createdAt: formatDate(row.caseCreatedAt)
+      createdAt: formatDate(row.caseCreatedAt),
+      unread: Number(row.unread || 0),
+      contact: row.contact,
+      resolvedAt: formatDate(row.resolvedAt)
     },
     transaction: {
       id: row.txId,
@@ -428,13 +483,19 @@ async function getTidbCaseBundle(caseId) {
       riskTier: row.riskTier,
       country: row.customerCountry,
       createdAt: formatDate(row.customerCreatedAt),
-      medianPayment: Number(row.medianPayment)
+      medianPayment: Number(row.medianPayment),
+      email: row.email,
+      phone: row.phone,
+      initials: row.initials,
+      memberSince: formatDate(row.memberSince)?.slice(0, 10),
+      tier: row.tier
     },
     merchant: {
       id: row.merchantId,
       name: row.merchantName,
       category: row.merchantCategory,
       country: row.merchantCountry,
+      city: row.merchantCity,
       riskScore: Number(row.merchantRisk)
     },
     evidence: evidenceRows,
@@ -459,6 +520,43 @@ function filterCase(row, priority, query) {
       .some((value) => String(value).toLowerCase().includes(q));
   return priorityOk && queryOk;
 }
+
+const AGENT_SKILLS = {
+  customer: {
+    name: "customer_history.lookup",
+    goal: "Compare the transaction against customer profile, baseline payment size, and recalled customer memories."
+  },
+  merchant: {
+    name: "merchant_risk.score",
+    goal: "Read merchant profile and memory signals to determine merchant-side risk."
+  },
+  network: {
+    name: "network_graph.expand",
+    goal: "Expand the case graph around customer, receiver, device, payout account, and merchant evidence."
+  },
+  policy: {
+    name: "policy_match.evaluate",
+    goal: "Match computed case facts against fraud operations policy and choose a recommended action."
+  },
+  memory: {
+    name: "memory_recall.retrieve",
+    goal: "Retrieve prior customer and merchant memories and prepare a durable memory writeback."
+  }
+};
+
+const AGENT_ID_BY_NAME = {
+  "Customer History Agent": "customer",
+  "Merchant Risk Agent": "merchant",
+  "Network Graph Agent": "network",
+  "Policy Agent": "policy"
+};
+
+const AGENT_LABEL_BY_ID = {
+  customer: "Customer History Agent",
+  merchant: "Merchant Risk Agent",
+  network: "Network Graph Agent",
+  policy: "Policy Agent"
+};
 
 function analyze(bundle) {
   const { transaction, customer, merchant, evidence, memory, graph } = bundle;
@@ -494,6 +592,8 @@ function analyze(bundle) {
     agents: [
       {
         name: "Customer History Agent",
+        skill: AGENT_SKILLS.customer.name,
+        goal: AGENT_SKILLS.customer.goal,
         status: "complete",
         finding: `${customer.name} is ${customer.riskTier}; transaction is ${amountRatio.toFixed(1)}x the customer's normal median payment.`,
         confidence: amountRatio > 4 ? 0.86 : 0.62,
@@ -512,6 +612,8 @@ function analyze(bundle) {
       },
       {
         name: "Merchant Risk Agent",
+        skill: AGENT_SKILLS.merchant.name,
+        goal: AGENT_SKILLS.merchant.goal,
         status: "complete",
         finding: `${merchant.name} has merchant risk score ${merchant.riskScore} in ${merchant.category}.`,
         confidence: merchant.riskScore >= 80 ? 0.9 : 0.66,
@@ -530,6 +632,8 @@ function analyze(bundle) {
       },
       {
         name: "Network Graph Agent",
+        skill: AGENT_SKILLS.network.name,
+        goal: AGENT_SKILLS.network.goal,
         status: "complete",
         finding: `${highRiskEdges.length} high-risk graph edges found around customer, device, payout account, or merchant.`,
         confidence: highRiskEdges.length > 0 ? 0.88 : 0.54,
@@ -545,6 +649,8 @@ function analyze(bundle) {
       },
       {
         name: "Policy Agent",
+        skill: AGENT_SKILLS.policy.name,
+        goal: AGENT_SKILLS.policy.goal,
         status: "complete",
         finding:
           merchant.riskScore >= 80 || amountRatio > 4
@@ -565,6 +671,8 @@ function analyze(bundle) {
       },
       {
         name: "Memory Agent",
+        skill: AGENT_SKILLS.memory.name,
+        goal: AGENT_SKILLS.memory.goal,
         status: "complete",
         finding:
           memory.length > 0
@@ -586,13 +694,610 @@ function analyze(bundle) {
   };
 }
 
+async function buildAgentTimeline(bundle) {
+  const analysis = analyze(bundle);
+  const timelineAgents = analysis.agents.filter((agent) => AGENT_ID_BY_NAME[agent.name]);
+  const agentEntries = await Promise.all(
+    timelineAgents.map(async (agent, index) => {
+      const agentId = AGENT_ID_BY_NAME[agent.name];
+      const message = initialAnalysisAgentMessage(agentId, bundle);
+      const reply = await runChatAgent({ agentId, agent, bundle, analysis, message });
+      return {
+        type: "agent",
+        agent: agentId,
+        ts: `T+${2 + index * 2}s`,
+        narrative: reply.narrative,
+        finding: reply.finding,
+        inspect: [
+          ...inspectItems(agent, bundle),
+          {
+            kind: "result",
+            text: agentResponseSourceText(reply)
+          }
+        ],
+        viz: agentViz(agentId, bundle, analysis)
+      };
+    })
+  );
+
+  return [
+    {
+      type: "system",
+      ts: "T+0s",
+      text: `Case ${bundle.case.id} opened from TiDB data; agents will run scoped skills over case, graph, memory, and policy tables.`
+    },
+    ...agentEntries,
+    synthesisPayload({ riskCase: bundle.case, score: analysis.score, confidence: confidenceForScore(analysis.score) })
+  ];
+}
+
+function initialAnalysisAgentMessage(agentId, bundle) {
+  const label = AGENT_LABEL_BY_ID[agentId] || agentId;
+  return [
+    `Run the initial investigation for case ${bundle.case.id} as the ${label}.`,
+    "Use the supplied TiDB-backed tool observations, produce an evidence-bound timeline update, and avoid inventing facts."
+  ].join(" ");
+}
+
+function chatAgentTargets(message) {
+  const normalized = message.toLowerCase();
+  const explicit = [
+    ["customer", /@customer|客户|customer|history|profile|baseline/],
+    ["merchant", /@merchant|商户|merchant|chargeback|payout/],
+    ["network", /@network|网络|network|graph|ring|cluster|关联/],
+    ["policy", /@policy|政策|policy|rule|规则|reg|hold|escalate/]
+  ].flatMap(([agent, pattern]) => pattern.test(normalized) ? [agent] : []);
+  if (normalized.includes("@all") || normalized.includes("all agents") || normalized.includes("所有")) {
+    return ["customer", "merchant", "network", "policy"];
+  }
+  return explicit.length ? [...new Set(explicit)] : ["customer", "merchant", "network", "policy"];
+}
+
+async function chatWithAgents(caseId, message) {
+  const bundle = await getCaseBundle(caseId);
+  if (!bundle) return null;
+
+  const analysis = analyze(bundle);
+  const agentById = new Map(
+    analysis.agents
+      .filter((agent) => AGENT_ID_BY_NAME[agent.name])
+      .map((agent) => [AGENT_ID_BY_NAME[agent.name], agent])
+  );
+  const events = [
+    {
+      type: "analyst_message",
+      entry: {
+        type: "analyst",
+        user: "maya",
+        ts: "Now",
+        text: message
+      }
+    }
+  ];
+
+  for (const agentId of chatAgentTargets(message)) {
+    const agent = agentById.get(agentId);
+    if (!agent) continue;
+    const reply = await runChatAgent({ agentId, agent, bundle, analysis, message });
+    events.push({ type: "agent_status", agent: agentId, status: "working" });
+    events.push({
+      type: "agent_message",
+      entry: {
+        type: "agent",
+        agent: agentId,
+        ts: "Now",
+        narrative: reply.narrative,
+        finding: reply.finding,
+        inspect: [
+          ...inspectItems(agent, bundle),
+          {
+            kind: "result",
+            text: agentResponseSourceText(reply)
+          }
+        ],
+        viz: agentViz(agentId, bundle, analysis)
+      }
+    });
+    events.push({ type: "agent_status", agent: agentId, status: "done" });
+  }
+
+  return events;
+}
+
+function agentResponseSourceText(reply) {
+  if (reply.provider === "codex") {
+    return `Real AI agent response generated by Codex CLI${reply.model ? ` (${reply.model})` : ""}.`;
+  }
+  if (reply.provider === "openai") {
+    return `Real AI agent response generated by ${reply.model}.`;
+  }
+  return "Deterministic fallback used because no real agent provider completed successfully.";
+}
+
+async function runChatAgent({ agentId, agent, bundle, analysis, message }) {
+  if (isCodexProvider()) {
+    try {
+      return await runCodexAgent({ agentId, agent, bundle, analysis, message });
+    } catch (error) {
+      console.error("Codex agent call failed, falling back to deterministic response", {
+        agent: agentId,
+        provider: agentProvider,
+        message: error.message
+      });
+    }
+  }
+
+  if (agentProvider === "openai" && process.env.OPENAI_API_KEY) {
+    try {
+      return await runOpenAIAgent({ agentId, agent, bundle, analysis, message });
+    } catch (error) {
+      console.error("AI agent call failed, falling back to deterministic response", {
+        agent: agentId,
+        provider: agentProvider,
+        message: error.message
+      });
+    }
+  }
+
+  return {
+    provider: "deterministic",
+    model: "local-skill-fallback",
+    narrative: chatAgentNarrative(agentId, agent, bundle, analysis, message),
+    finding: agent.finding
+  };
+}
+
+async function runOpenAIAgent({ agentId, agent, bundle, analysis, message }) {
+  const context = agentTaskContext(agentId, agent, bundle, analysis, message);
+  const system = [
+    "You are a fraud-risk investigation AI agent embedded in an analyst workspace.",
+    "You receive one analyst task, inspect the provided tool observations, reason from evidence, and answer as the named specialized agent.",
+    "Do not invent data outside the supplied context. Separate facts from inference. Keep the answer concise and operational.",
+    "Return only valid JSON with fields: narrative, finding, confidence."
+  ].join(" ");
+  const user = JSON.stringify(context, null, 2);
+
+  const response = await fetchWithTimeout(`${agentBaseUrl}/responses`, {
+    method: "POST",
+    headers: {
+      "authorization": `Bearer ${process.env.OPENAI_API_KEY}`,
+      "content-type": "application/json"
+    },
+    body: JSON.stringify({
+      model: agentModel,
+      input: [
+        { role: "system", content: system },
+        { role: "user", content: user }
+      ],
+      temperature: 0.2,
+      max_output_tokens: 700
+    })
+  }, agentTimeoutMs);
+
+  if (!response.ok) {
+    const body = await response.text().catch(() => "");
+    throw new Error(`OpenAI Responses API failed: ${response.status} ${response.statusText}${body ? ` ${body}` : ""}`);
+  }
+
+  const data = await response.json();
+  const text = responseText(data);
+  const parsed = parseAgentJson(text);
+  return {
+    provider: "openai",
+    model: agentModel,
+    narrative: cleanText(parsed.narrative || text || chatAgentNarrative(agentId, agent, bundle, analysis, message)),
+    finding: cleanText(parsed.finding || agent.finding),
+    confidence: Number(parsed.confidence || agent.confidence || 0)
+  };
+}
+
+async function runCodexAgent({ agentId, agent, bundle, analysis, message }) {
+  const context = agentTaskContext(agentId, agent, bundle, analysis, message);
+  const tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), "risk-agent-codex-"));
+  const outputFile = path.join(tmpDir, "last-message.json");
+  const prompt = [
+    "You are a fraud-risk investigation AI agent embedded in an analyst workspace.",
+    "You receive one analyst task and a compact JSON package of tool observations already read from TiDB-backed storage.",
+    "Think through the evidence internally, but return only valid JSON.",
+    "Do not invent facts outside the supplied context.",
+    "Return exactly this shape: {\"narrative\":\"...\",\"finding\":\"...\",\"confidence\":0.0}.",
+    "",
+    JSON.stringify(context, null, 2)
+  ].join("\n");
+  const args = [
+    "exec",
+    "--ephemeral",
+    "--skip-git-repo-check",
+    "--sandbox",
+    "read-only",
+    "--cd",
+    root,
+    "--output-last-message",
+    outputFile
+  ];
+  if (codexModel) args.push("--model", codexModel);
+  args.push("-");
+
+  try {
+    await runCommand(codexBin, args, prompt, agentTimeoutMs);
+    const text = fs.readFileSync(outputFile, "utf8").trim();
+    const parsed = parseAgentJson(text);
+    return {
+      provider: "codex",
+      model: codexModel || "codex-default",
+      narrative: cleanText(parsed.narrative || text || chatAgentNarrative(agentId, agent, bundle, analysis, message)),
+      finding: cleanText(parsed.finding || agent.finding),
+      confidence: Number(parsed.confidence || agent.confidence || 0)
+    };
+  } finally {
+    fs.rmSync(tmpDir, { recursive: true, force: true });
+  }
+}
+
+async function runCommand(command, args, input, timeoutMs) {
+  return new Promise((resolve, reject) => {
+    const child = spawn(command, args, {
+      cwd: root,
+      env: {
+        ...process.env,
+        HOME: process.env.HOME || "/Users/bb7133",
+        PATH: process.env.PATH || "/opt/homebrew/bin:/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin"
+      },
+      stdio: ["pipe", "pipe", "pipe"]
+    });
+    let stdout = "";
+    let stderr = "";
+    let settled = false;
+    const timer = setTimeout(() => {
+      if (settled) return;
+      settled = true;
+      child.kill("SIGTERM");
+      reject(new Error(`${command} timed out after ${timeoutMs}ms`));
+    }, timeoutMs);
+
+    child.stdout.on("data", (chunk) => {
+      stdout += chunk.toString("utf8");
+      if (stdout.length > 8000) stdout = stdout.slice(-8000);
+    });
+    child.stderr.on("data", (chunk) => {
+      stderr += chunk.toString("utf8");
+      if (stderr.length > 8000) stderr = stderr.slice(-8000);
+    });
+    child.on("error", (error) => {
+      if (settled) return;
+      settled = true;
+      clearTimeout(timer);
+      reject(error);
+    });
+    child.on("close", (code) => {
+      if (settled) return;
+      settled = true;
+      clearTimeout(timer);
+      if (code === 0) return resolve({ stdout, stderr });
+      reject(new Error(`${command} exited ${code}: ${stderr || stdout}`));
+    });
+    child.stdin.end(input);
+  });
+}
+
+async function fetchWithTimeout(url, init, timeoutMs) {
+  const controller = new AbortController();
+  const timeout = setTimeout(() => controller.abort(), timeoutMs);
+  try {
+    return await fetch(url, { ...init, signal: controller.signal });
+  } finally {
+    clearTimeout(timeout);
+  }
+}
+
+function responseText(data) {
+  if (typeof data.output_text === "string") return data.output_text;
+  const parts = [];
+  for (const item of data.output || []) {
+    for (const content of item.content || []) {
+      if (typeof content.text === "string") parts.push(content.text);
+      if (typeof content.output_text === "string") parts.push(content.output_text);
+    }
+  }
+  return parts.join("\n").trim();
+}
+
+function parseAgentJson(text) {
+  if (!text) return {};
+  const stripped = text.replace(/^```(?:json)?/i, "").replace(/```$/i, "").trim();
+  try {
+    return JSON.parse(stripped);
+  } catch {}
+  const match = stripped.match(/\{[\s\S]*\}/);
+  if (!match) return {};
+  try {
+    return JSON.parse(match[0]);
+  } catch {
+    return {};
+  }
+}
+
+function cleanText(value) {
+  return String(value || "").replace(/\s+/g, " ").trim();
+}
+
+function agentTaskContext(agentId, agent, bundle, analysis, message) {
+  return {
+    task: {
+      message,
+      requestedAgent: AGENT_LABEL_BY_ID[agentId],
+      skill: agent.skill,
+      goal: agent.goal
+    },
+    case: {
+      id: bundle.case.id,
+      priority: bundle.case.priority,
+      status: bundle.case.status,
+      reason: bundle.case.reason,
+      transaction: bundle.transaction,
+      customer: bundle.customer,
+      merchant: bundle.merchant
+    },
+    toolObservations: agentToolObservations(agentId, agent, bundle, analysis),
+    currentSynthesis: {
+      score: analysis.score,
+      conclusion: analysis.conclusion,
+      recommendation: analysis.recommendation
+    },
+    responseContract: {
+      narrative: "First-person answer from the specialized agent to the analyst.",
+      finding: "One sentence finding backed by supplied evidence.",
+      confidence: "Number from 0 to 1."
+    }
+  };
+}
+
+function agentToolObservations(agentId, agent, bundle, analysis) {
+  if (agentId === "customer") {
+    return {
+      tools: ["read_customer_profile", "query_transactions", "recall_customer_memory"],
+      facts: {
+        customer: bundle.customer,
+        transactionAmount: bundle.transaction.amount,
+        medianPayment: bundle.customer.medianPayment,
+        amountRatio: Number((bundle.transaction.amount / bundle.customer.medianPayment).toFixed(2)),
+        memories: bundle.memory.filter((item) => item.subjectId === bundle.customer.id).slice(0, 5)
+      },
+      deterministicFinding: agent.finding
+    };
+  }
+  if (agentId === "merchant") {
+    return {
+      tools: ["read_merchant_profile", "recall_merchant_memory", "compare_chargeback_risk"],
+      facts: {
+        merchant: bundle.merchant,
+        memories: bundle.memory.filter((item) => item.subjectId === bundle.merchant.id).slice(0, 5),
+        evidence: bundle.evidence.slice(0, 5)
+      },
+      deterministicFinding: agent.finding
+    };
+  }
+  if (agentId === "network") {
+    return {
+      tools: ["expand_network_graph", "query_evidence_files", "rank_high_risk_edges"],
+      facts: {
+        graph: bundle.graph.slice(0, 12),
+        highRiskEdges: bundle.graph.filter((edge) => edge.risk >= 80).slice(0, 12),
+        evidence: bundle.evidence.slice(0, 8)
+      },
+      deterministicFinding: agent.finding
+    };
+  }
+  if (agentId === "policy") {
+    return {
+      tools: ["read_policy_document", "evaluate_case_facts", "recommend_action"],
+      facts: {
+        policyExcerpt: analysis.policyExcerpt,
+        score: analysis.score,
+        conclusion: analysis.conclusion,
+        recommendation: analysis.recommendation
+      },
+      deterministicFinding: agent.finding
+    };
+  }
+  return { tools: [agent.skill], facts: {}, deterministicFinding: agent.finding };
+}
+
+function chatAgentNarrative(agentId, agent, bundle, analysis, message) {
+  const prompt = message.replace(/\s+/g, " ").trim();
+  const prefix = `${agent.skill} received the analyst message "${prompt}".`;
+  if (agentId === "customer") {
+    return `${prefix} I rechecked customer ${bundle.customer.id}, payment baseline, and recalled customer memory. ${agent.finding}`;
+  }
+  if (agentId === "merchant") {
+    return `${prefix} I re-scored merchant ${bundle.merchant.id} using merchant profile and memory signals. ${agent.finding}`;
+  }
+  if (agentId === "network") {
+    return `${prefix} I expanded the graph around case ${bundle.case.id} and checked high-risk adjacent edges. ${agent.finding}`;
+  }
+  if (agentId === "policy") {
+    return `${prefix} I matched the current facts against the policy extract and recommendation threshold. ${agent.finding} Current synthesis remains: ${analysis.recommendation}`;
+  }
+  return `${prefix} ${agent.finding}`;
+}
+
+function agentNarrative(agent, bundle, analysis) {
+  const skill = agent.skill || "agent.skill";
+  const firstStep = agent.steps?.[0] || `Loaded case ${bundle.case.id}.`;
+  const secondStep = agent.steps?.[1] || "Computed risk signals from available evidence.";
+  return `${skill} ran against live case data. ${firstStep} ${secondStep} Current risk score contribution supports: ${analysis.conclusion}`;
+}
+
+function inspectItems(agent, bundle) {
+  const outputs = [];
+  outputs.push({
+    kind: "tool",
+    name: `skill:${agent.skill}`,
+    q: agent.sql
+  });
+  outputs.push({
+    kind: "result",
+    text: `${agent.goal} Reads: ${agent.reads.join(", ")}. Writes: ${agent.writes.join(", ")}.`
+  });
+  for (const step of agent.steps.slice(0, 3)) {
+    outputs.push({ kind: "result", text: step });
+  }
+  const evidence = agent.evidence.slice(0, 3);
+  for (const item of evidence) {
+    outputs.push({ kind: "result", text: `Evidence: ${item}` });
+  }
+  outputs.push({
+    kind: "file",
+    name: `${agent.skill.replaceAll(".", "_")}_${bundle.case.id}.md`,
+    size: "TiDB-backed"
+  });
+  return outputs;
+}
+
+function agentViz(agentId, bundle, analysis) {
+  const { transaction, customer, merchant, graph } = bundle;
+  const amount = Number(transaction.amount || 0);
+  const median = Math.max(1, Number(customer.medianPayment || 1));
+  if (agentId === "customer") {
+    return {
+      baseline: [
+        [9, Math.round(median * 0.7)],
+        [11, Math.round(median * 0.9)],
+        [13, Math.round(median * 1.1)],
+        [15, Math.round(median * 1.3)],
+        [18, Math.round(median * 0.8)]
+      ],
+      outlier: { x: hourOf(transaction.occurredAt), y: amount, label: `${(amount / median).toFixed(1)}x median` },
+      caption: `Customer baseline from TiDB customer profile; current transaction ${transaction.currency} ${amount}.`
+    };
+  }
+  if (agentId === "merchant") {
+    return {
+      merchantRate: Number(merchant.riskScore || 0),
+      industry: { p50: 35, p90: 70, p99: 92 },
+      max: 100,
+      caption: `Merchant risk score ${merchant.riskScore}; compared with static industry benchmark.`
+    };
+  }
+  if (agentId === "network") {
+    const nodes = graphNodes(bundle).slice(0, 7);
+    return {
+      nodes,
+      edges: graph.slice(0, 8).map((edge) => ({ a: edge.source, b: edge.target, mule: Number(edge.risk) >= 80 })),
+      caption: `${graph.length} graph edge(s), ${graph.filter((edge) => Number(edge.risk) >= 80).length} high-risk.`
+    };
+  }
+  if (agentId === "policy") {
+    return {
+      rows: [
+        {
+          code: "P-ESC",
+          title: "Escalate fraud operations",
+          trigger: analysis.score >= 85 ? "matched" : "not matched",
+          eligibility: ["risk_score >= 85", "merchant risk or amount anomaly present"]
+        },
+        {
+          code: "P-HOLD",
+          title: "Conditional hold",
+          trigger: analysis.score >= 65 ? "matched" : "not matched",
+          eligibility: ["risk_score >= 65", "human confirmation required"]
+        }
+      ],
+      caption: "Policy skill matched computed case facts against fraud-policy.md."
+    };
+  }
+  return undefined;
+}
+
+function graphNodes(bundle) {
+  const seen = new Set();
+  const nodes = [];
+  const add = (id, kind) => {
+    if (!id || seen.has(id)) return;
+    seen.add(id);
+    const index = nodes.length;
+    nodes.push({
+      id,
+      x: 40 + (index % 4) * 85,
+      y: 45 + Math.floor(index / 4) * 70,
+      r: index < 2 ? 12 : 9,
+      kind
+    });
+  };
+  add(bundle.customer.id, "victim");
+  add(bundle.merchant.id, Number(bundle.merchant.riskScore) >= 80 ? "mule" : "receiver");
+  for (const edge of bundle.graph) {
+    add(edge.source, Number(edge.risk) >= 80 ? "mule" : "neutral");
+    add(edge.target, Number(edge.risk) >= 80 ? "settle" : "neutral");
+  }
+  return nodes;
+}
+
+function hourOf(value) {
+  const date = new Date(value);
+  return Number.isNaN(date.getTime()) ? 12 : date.getUTCHours();
+}
+
+function confidenceForScore(score) {
+  return score >= 85 ? 0.91 : score >= 65 ? 0.82 : 0.68;
+}
+
+function synthesisPayload({ riskCase, score, confidence }) {
+  return {
+    type: "synthesis",
+    ts: "T+10s",
+    score,
+    confidence,
+    verdicts: [
+      { agent: "customer", label: "Anomaly", level: score >= 85 ? "HIGH" : "MED", tone: score >= 85 ? "danger" : "warn" },
+      { agent: "merchant", label: "Merchant", level: riskCase.priority === "P1" ? "HIGH" : "MED", tone: riskCase.priority === "P1" ? "danger" : "warn" },
+      { agent: "network", label: "Network", level: score >= 85 ? "HIGH" : "MED", tone: score >= 85 ? "danger" : "warn" },
+      { agent: "policy", label: "Policy", level: score >= 85 ? "AUTO-HOLD" : "REVIEW", tone: "warn" }
+    ],
+    narrative: synthesisNarrative(riskCase.id, score),
+    file: `recommended_action_${riskCase.id}.md`,
+    cited: [
+      { f: `customer_history_lookup_${riskCase.id}.md`, a: "customer" },
+      { f: `merchant_risk_score_${riskCase.id}.md`, a: "merchant" },
+      { f: `network_graph_expand_${riskCase.id}.json`, a: "network" },
+      { f: `policy_match_evaluate_${riskCase.id}.md`, a: "policy" }
+    ],
+    actions: synthesisActions(score)
+  };
+}
+
+function synthesisNarrative(caseId, score) {
+  return score >= 85
+    ? `High-confidence fraud investigation for ${caseId}; keep the transaction held and escalate with evidence-bound writeback.`
+    : `Elevated-risk investigation for ${caseId}; keep under review until customer and merchant evidence is confirmed.`;
+}
+
+function synthesisActions(score) {
+  return score >= 85
+    ? [
+        { t: "Hold transaction", d: "Keep funds held pending fraud-ops review." },
+        { t: "Open dispute case", d: "Start customer-confirmation and dispute workflow." },
+        { t: "Write pattern memory", d: "Persist the graph pattern for future recall." }
+      ]
+    : [
+        { t: "Manual review", d: "Review the transaction before release." },
+        { t: "Write risk note", d: "Persist the elevated-risk signal for future recall." }
+      ];
+}
+
 const server = http.createServer(async (req, res) => {
   try {
     if (req.method === "OPTIONS") return json(res, 204, {});
 
     const url = new URL(req.url, `http://${req.headers.host}`);
     if (req.method === "GET" && url.pathname === "/api/health") {
-      return json(res, 200, { ok: true, service: "risk-investigation-api", repository: repositoryName });
+      return json(res, 200, {
+        ok: true,
+        service: "risk-investigation-api",
+        repository: repositoryName,
+        agentRuntime: activeAgentRuntime(),
+        agentModel: activeAgentModel()
+      });
     }
 
     if (req.method === "GET" && url.pathname === "/api/cases") {
@@ -601,6 +1306,11 @@ const server = http.createServer(async (req, res) => {
       const query = url.searchParams.get("q") || "";
       const limit = Math.min(Number(url.searchParams.get("limit") || 250), 2000);
       return json(res, 200, await listCases({ source, priority, query, limit }));
+    }
+
+    const timelineMatch = url.pathname.match(/^\/api\/cases\/([^/]+)\/timeline$/);
+    if (req.method === "GET" && timelineMatch) {
+      return json(res, 200, await getCaseTimeline(timelineMatch[1]));
     }
 
     const caseMatch = url.pathname.match(/^\/api\/cases\/([^/]+)$/);
@@ -615,9 +1325,23 @@ const server = http.createServer(async (req, res) => {
       return bundle ? json(res, 200, { ...bundle, analysis: analyze(bundle) }) : notFound(res);
     }
 
+    const chatMatch = url.pathname.match(/^\/api\/cases\/([^/]+)\/chat$/);
+    if (req.method === "POST" && chatMatch) {
+      const body = await readJsonBody(req);
+      const message = typeof body.message === "string" ? body.message.trim() : "";
+      if (!message) return json(res, 400, { error: "message_required" });
+      const result = await chatWithAgents(chatMatch[1], message);
+      return result ? json(res, 200, result) : notFound(res);
+    }
+
+    const executeMatch = url.pathname.match(/^\/api\/cases\/([^/]+)\/execute$/);
+    if (req.method === "POST" && executeMatch) {
+      const result = await resolveCase(executeMatch[1]);
+      return result ? json(res, 200, result) : notFound(res);
+    }
+
     if (req.method === "GET" && url.pathname === "/api/schema") {
-      const readme = fs.readFileSync(path.join(root, "README.md"), "utf8");
-      const schema = readme.match(/```sql\n([\s\S]*?)```/)?.[1] || "";
+      const schema = tidbPool ? await readTidbSchema() : fs.readFileSync(path.join(root, "docs", "frontend-data-contract.md"), "utf8");
       return json(res, 200, { schema });
     }
 
@@ -631,3 +1355,45 @@ const server = http.createServer(async (req, res) => {
 server.listen(port, "127.0.0.1", () => {
   console.log(`Risk investigation API listening on http://127.0.0.1:${port} (${repositoryName})`);
 });
+
+async function readTidbSchema() {
+  const tables = [
+    "customers",
+    "merchants",
+    "transactions",
+    "risk_cases",
+    "evidence_files",
+    "network_edges",
+    "memory_events",
+    "agent_findings",
+    "policy_documents",
+    "case_timeline_events",
+    "case_agent_status",
+    "case_synthesis",
+    "case_actions"
+  ];
+  const chunks = [];
+  for (const table of tables) {
+    const [rows] = await tidbPool.query(`SHOW CREATE TABLE \`${table}\``);
+    const createSql = rows[0]?.["Create Table"];
+    if (createSql) chunks.push(`${createSql};`);
+  }
+  return chunks.join("\n\n");
+}
+
+async function resolveCase(caseId) {
+  const bundle = await getCaseBundle(caseId);
+  if (!bundle) return null;
+  const pattern = `cluster_RING_${String(140 + (Number(caseId.replace(/\D/g, "")) % 60)).padStart(3, "0")}`;
+  const result = {
+    dispute_id: `DSP-${caseId.replace(/\D/g, "").slice(-6).padStart(6, "0")}`,
+    pattern_saved: pattern
+  };
+  if (tidbPool) {
+    await tidbPool.query(
+      "UPDATE risk_cases SET status = 'resolved', unread = 0, resolved_at = CURRENT_TIMESTAMP WHERE id = :caseId",
+      { caseId }
+    );
+  }
+  return result;
+}

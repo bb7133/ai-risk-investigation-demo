@@ -176,7 +176,7 @@ function FilterDropdown({
             boxShadow: "var(--shadow-2)",
           }}
         >
-          {SECTIONS.map((s, i) => (
+          {SECTIONS.map((s) => (
             <div key={s.v}>
               {s.v === "all" && (
                 <div className="h-px bg-line-subtle mx-[6px] my-1" />

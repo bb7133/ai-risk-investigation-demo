@@ -1,6 +1,7 @@
 import { apiFetch } from "./client";
 import type {
   Case,
+  CaseEvent,
   CaseListItem,
   SynthesisResolvedMeta,
   TimelineEntry,
@@ -29,4 +30,12 @@ export function executeCase(id: string): Promise<SynthesisResolvedMeta> {
     `/api/cases/${encodeURIComponent(id)}/execute`,
     { method: "POST" },
   );
+}
+
+export function sendCaseMessage(id: string, message: string): Promise<CaseEvent[]> {
+  return apiFetch<CaseEvent[]>(`/api/cases/${encodeURIComponent(id)}/chat`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ message }),
+  });
 }

@@ -71,6 +71,10 @@ const transactions = [];
 const cases = [];
 const networkEdges = [];
 const memoryEvents = [];
+const timelineEvents = [];
+const agentStatuses = [];
+const syntheses = [];
+const caseActions = [];
 
 for (let i = 0; i < count; i++) {
   const step = 1 + (i % 744);
@@ -112,15 +116,23 @@ for (let i = 0; i < count; i++) {
 
   if (isFraud || isFlaggedFraud || (merchant.risky && amount > origin.baseline * 4)) {
     const caseId = `RC${String(cases.length + 1).padStart(8, "0")}`;
+    const priority = isFraud || isFlaggedFraud ? "P1" : "P2";
+    const reason = isFraud
+      ? "PaySim-style fraud pattern: account depletion via transfer or cash-out."
+      : "High-risk merchant and amount significantly above customer baseline.";
+    const unread = priority === "P1" ? 3 : 1;
+    const contact = isFraud
+      ? "Customer confirmation required: transaction pattern matches account-depletion behavior."
+      : "Risk operations review requested for elevated merchant and amount pattern.";
     cases.push({
       id: caseId,
       transaction_id: txId,
-      priority: isFraud || isFlaggedFraud ? "P1" : "P2",
-      status: "open",
-      reason: isFraud
-        ? "PaySim-style fraud pattern: account depletion via transfer or cash-out."
-        : "High-risk merchant and amount significantly above customer baseline.",
-      created_step: step
+      priority,
+      status: "awaiting",
+      reason,
+      created_step: step,
+      unread,
+      contact
     });
 
     const deviceId = `D${String(((i * 97) % 50000) + 1).padStart(8, "0")}`;
@@ -142,6 +154,26 @@ for (let i = 0; i < count; i++) {
       confidence: isFraud ? "0.9100" : "0.7300",
       created_step: step
     });
+
+    const workflow = workflowRows({
+      caseId,
+      txId,
+      step,
+      priority,
+      reason,
+      originId: origin.id,
+      destinationId: destination.id,
+      amount: money(amount),
+      type,
+      isFraud,
+      isFlaggedFraud,
+      merchantRisk: merchant.riskScore,
+      edgeRisk: isFraud ? 92 : 70
+    });
+    timelineEvents.push(...workflow.timelineEvents);
+    agentStatuses.push(...workflow.agentStatuses);
+    syntheses.push(workflow.synthesis);
+    caseActions.push(...workflow.caseActions);
   }
 }
 
@@ -164,14 +196,195 @@ writeCsv(
   transactions
 );
 
-writeCsv("risk_cases.csv", ["id", "transaction_id", "priority", "status", "reason", "created_step"], cases);
+writeCsv("risk_cases.csv", ["id", "transaction_id", "priority", "status", "reason", "created_step", "unread", "contact"], cases);
 writeCsv("network_edges.csv", ["case_id", "source", "target", "edge_type", "risk"], networkEdges);
 writeCsv(
   "memory_events.csv",
   ["id", "subject_type", "subject_id", "event_type", "content", "confidence", "created_step"],
   memoryEvents
 );
+writeCsv(
+  "case_timeline_events.csv",
+  ["case_id", "event_order", "event_type", "agent_id", "ts_label", "payload_json", "created_step"],
+  timelineEvents
+);
+writeCsv("case_agent_status.csv", ["case_id", "agent_id", "status"], agentStatuses);
+writeCsv(
+  "case_synthesis.csv",
+  ["case_id", "score", "confidence", "narrative", "payload_json", "resolved_payload_json"],
+  syntheses
+);
+writeCsv("case_actions.csv", ["case_id", "action_type", "action_detail", "status"], caseActions);
 
 console.log(`Generated ${transactions.length} PaySim-style transactions`);
 console.log(`Generated ${cases.length} risk cases`);
+console.log(`Generated ${timelineEvents.length} workflow timeline events`);
 console.log(`Output: ${outDir}`);
+
+function workflowRows({
+  caseId,
+  txId,
+  step,
+  priority,
+  reason,
+  originId,
+  destinationId,
+  amount,
+  type,
+  isFraud,
+  isFlaggedFraud,
+  merchantRisk,
+  edgeRisk
+}) {
+  const amountNumber = Number(amount);
+  const score = Math.min(
+    99,
+    Math.round(
+      (priority === "P1" ? 58 : 38) +
+        Math.min(20, amountNumber / 800) +
+        Math.min(15, merchantRisk / 7) +
+        (isFraud ? 15 : 0) +
+        (isFlaggedFraud ? 8 : 0)
+    )
+  );
+  const confidence = score >= 85 ? "0.9100" : "0.7800";
+  const ringId = String(140 + (Number(caseId.replace(/\D/g, "")) % 60)).padStart(3, "0");
+  const timeline = [
+    {
+      event_type: "system_event",
+      agent_id: "",
+      ts_label: "T+0s",
+      payload: {
+        type: "system",
+        ts: "T+0s",
+        text: `Case ${caseId} opened from transaction ${txId}; ${priority} priority.`
+      }
+    },
+    {
+      event_type: "agent_message",
+      agent_id: "customer",
+      ts_label: "T+2s",
+      payload: {
+        type: "agent",
+        agent: "customer",
+        ts: "T+2s",
+        narrative: `${originId} generated a ${type} transaction for USD ${amount}. The amount and flow shape are outside the normal synthetic baseline.`,
+        finding: `Customer anomaly: ${type} amount USD ${amount}.`
+      }
+    },
+    {
+      event_type: "agent_message",
+      agent_id: "merchant",
+      ts_label: "T+4s",
+      payload: {
+        type: "agent",
+        agent: "merchant",
+        ts: "T+4s",
+        narrative: `${destinationId} has risk score ${merchantRisk}; the transaction matches an elevated merchant or payout pattern.`,
+        finding: `Merchant or beneficiary risk score ${merchantRisk}.`
+      }
+    },
+    {
+      event_type: "agent_message",
+      agent_id: "network",
+      ts_label: "T+6s",
+      payload: {
+        type: "agent",
+        agent: "network",
+        ts: "T+6s",
+        narrative: `The case graph links customer, device, payout account, and receiver with max edge risk ${edgeRisk}.`,
+        finding: `Graph risk edge observed; cluster RING-${ringId}.`
+      }
+    },
+    {
+      event_type: "agent_message",
+      agent_id: "policy",
+      ts_label: "T+8s",
+      payload: {
+        type: "agent",
+        agent: "policy",
+        ts: "T+8s",
+        narrative: score >= 85
+          ? "Policy match recommends hold, escalation, and dispute workflow."
+          : "Policy match recommends conditional review before release.",
+        finding: score >= 85 ? "Auto-hold and fraud-ops escalation." : "Conditional manual review."
+      }
+    },
+    {
+      event_type: "synthesis_ready",
+      agent_id: "",
+      ts_label: "T+10s",
+      payload: {
+        type: "synthesis",
+        ts: "T+10s",
+        score,
+        confidence: Number(confidence),
+        verdicts: [
+          { agent: "customer", label: "Anomaly", level: priority === "P1" ? "HIGH" : "MED", tone: priority === "P1" ? "danger" : "warn" },
+          { agent: "merchant", label: "Merchant", level: merchantRisk >= 80 ? "HIGH" : "MED", tone: merchantRisk >= 80 ? "danger" : "warn" },
+          { agent: "network", label: "Network", level: edgeRisk >= 80 ? "HIGH" : "MED", tone: edgeRisk >= 80 ? "danger" : "warn" },
+          { agent: "policy", label: "Policy", level: score >= 85 ? "AUTO-HOLD" : "REVIEW", tone: "warn" }
+        ],
+        narrative: score >= 85
+          ? `High-confidence fraud investigation for ${caseId}; keep the transaction held and open dispute workflow.`
+          : `Elevated-risk investigation for ${caseId}; keep under review pending confirmation.`,
+        file: `recommended_action_${caseId}.md`,
+        cited: [
+          { f: `customer_pattern_${caseId}.md`, a: "customer" },
+          { f: `merchant_risk_${caseId}.md`, a: "merchant" },
+          { f: `network_graph_${caseId}.json`, a: "network" },
+          { f: `policy_match_${caseId}.md`, a: "policy" }
+        ],
+        actions: actionPayloads(score, amount, ringId)
+      }
+    }
+  ];
+  const agentStatuses = ["customer", "merchant", "network", "policy"].map((agent) => ({
+    case_id: caseId,
+    agent_id: agent,
+    status: "done"
+  }));
+  const narrative = score >= 85
+    ? `High-confidence fraud investigation for ${caseId}; keep the transaction held and open dispute workflow.`
+    : `Elevated-risk investigation for ${caseId}; keep under review pending confirmation.`;
+  return {
+    timelineEvents: timeline.map((entry, index) => ({
+      case_id: caseId,
+      event_order: index + 1,
+      event_type: entry.event_type,
+      agent_id: entry.agent_id,
+      ts_label: entry.ts_label,
+      payload_json: JSON.stringify(entry.payload),
+      created_step: step
+    })),
+    agentStatuses,
+    synthesis: {
+      case_id: caseId,
+      score,
+      confidence,
+      narrative,
+      payload_json: JSON.stringify({ score, confidence: Number(confidence), ring: `RING-${ringId}`, reason }),
+      resolved_payload_json: ""
+    },
+    caseActions: actionPayloads(score, amount, ringId).map((action) => ({
+      case_id: caseId,
+      action_type: action.t,
+      action_detail: action.d,
+      status: "recommended"
+    }))
+  };
+}
+
+function actionPayloads(score, amount, ringId) {
+  if (score >= 85) {
+    return [
+      { t: "Hold transaction", d: `Keep USD ${amount} held pending fraud-ops review.` },
+      { t: "Open dispute case", d: "Start customer-confirmation and dispute workflow." },
+      { t: "Write pattern memory", d: `Persist cluster_RING_${ringId} as a future recall signal.` }
+    ];
+  }
+  return [
+    { t: "Manual review", d: `Review USD ${amount} transaction before release.` },
+    { t: "Write risk note", d: `Persist cluster_RING_${ringId} as an elevated-risk signal.` }
+  ];
+}

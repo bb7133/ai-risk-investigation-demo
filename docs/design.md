@@ -2,26 +2,30 @@
 
 ## 总体架构
 
-当前版本采用本地可跑、但已经可切换 TiDB Zero backend 的 starter 架构：
+当前版本分成两个已经可运行的部分：
+
+- 新的 CLAIMS Frontend：`frontend/` 下的 Next.js 应用，当前默认通过 Next.js API adapter 读取 `8787` 后端真实数据；MSW 仅作为离线 fallback。
+- Legacy API + TiDB Backend：`8787` Node.js API，已经支持 local file repository 和 TiDB Zero repository，负责支撑 TiDB backend storage 叙事。
+
+目标架构是把新 frontend 接到 TiDB-backed API：
 
 ```text
 Real-time Rules / ML Risk Scoring
         |
         | suspicious transaction / held payment
         v
-React Web Console
+Next.js CLAIMS Frontend
         |
         | HTTP API
         v
-Node.js Demo API
+Node.js Demo API / Adapter
         |
-        | local JSON / CSV repository
-        | or TiDB Zero repository
+        | TiDB Zero repository
         v
-Transactions / Cases / Evidence / Memory
+Transactions / Cases / Evidence / Timeline / Memory / Agent Outputs
 ```
 
-本地 JSON/CSV repository 方便快速迭代；TiDB Zero repository 用于真实 backend storage 叙事。两种模式共用同一套 API 和 UI。
+当前已经进入 adapter 形态：新 frontend 的浏览器请求仍使用 `/api/*` contract，但由 `frontend/app/api/cases/*` 转接到 `8787` 后端并映射成 CLAIMS UI 需要的 payload。Schema 和 mapping 见 [frontend-data-contract.md](frontend-data-contract.md)。
 
 ## 系统边界
 
@@ -53,7 +57,7 @@ Human review / automated low-risk action
 
 ## 用户体验
 
-主界面分为四块：
+新的 CLAIMS 主界面分为几块：
 
 1. **Case Queue**
    - 展示待调查 case。
@@ -72,9 +76,10 @@ Human review / automated low-risk action
    - 汇总 risk score、conclusion、recommended action。
    - 每个 agent 展示 `Input -> Query -> Steps -> Evidence -> Output`，避免黑盒感。
 
-5. **TiDB Backend Storage**
+5. **TiDB Backend Storage / Stack View**
    - 展示 agent 读取和写回的 TiDB 表。
    - 明确哪些表是实时交易状态，哪些表是证据、图关系、memory 和 agent output。
+   - 当前新 frontend 中这部分仍然是 demo visualization；接入 real backend 后再由 TiDB/API 状态驱动。
 
 页面顶部会展示简化流程：
 
@@ -221,6 +226,35 @@ data/paysim-like/memory_events.csv
 
 ## API 设计
 
+### 新 CLAIMS Frontend Contract
+
+新 frontend 的 TypeScript contract 在 `frontend/types/api.ts`，期望的接口是：
+
+```text
+GET  /api/cases
+GET  /api/cases/:id
+GET  /api/cases/:id/timeline
+GET  /api/cases/:id/events
+POST /api/cases
+POST /api/cases/:id/chat
+POST /api/cases/:id/execute
+```
+
+其中：
+
+- `GET /api/cases` 返回 case queue。
+- `GET /api/cases/:id` 返回完整 case bundle。
+- `GET /api/cases/:id/timeline` 返回 agent workflow timeline。
+- `GET /api/cases/:id/events` 用 SSE 流式展示 agent 进度。
+- `POST /api/cases/:id/chat` 让 analyst 直接向一个或多个 agents 发消息，并把 agent 回复追加到 timeline。
+- `POST /api/cases/:id/execute` 触发或回放 investigation，并写回 timeline / finding / synthesis / action。
+
+当前这些接口由 Next.js route handlers 提供，并通过 Node API adapter 从 TiDB-backed backend 读取和组装同样的 payload。`frontend/mocks/` 保留为显式 offline fallback。详细 schema 和 mapping 见 [frontend-data-contract.md](frontend-data-contract.md)。
+
+### Legacy API
+
+旧 API 仍然可用，主要用于本地数据和 TiDB backend repository 验证：
+
 ```text
 GET  /api/health
 GET  /api/cases?source=guided
@@ -250,6 +284,12 @@ GET  /api/schema
 - 高风险 action 默认 human-in-the-loop，不直接自动扣款、冻结或关闭账户。
 - 如果证据不足，输出应建议补充调查，而不是强行给出结论。
 
+当前实现已经把 timeline 从静态回放推进到 real-agent 分析：后端会针对当前 case 为 `customer_history.lookup`、`merchant_risk.score`、`network_graph.expand`、`policy_match.evaluate` 四个 lane 分别收集 TiDB-backed tool observations，然后在配置了 Codex provider 时交给本地 `codex exec` 生成 agent message。每条 agent message 都包含 skill 名称、SQL-like query、读取/写入表、关键步骤、证据、生成 artifact 名称，以及回复来源，前端在 `Inspect query` 中展示这些工作细节。
+
+底部 analyst chatbox 现在走真实 agent runtime：用户输入消息后，`POST /api/cases/:id/chat` 会按 `@customer`、`@merchant`、`@network`、`@policy` 选择 agent（未指定时默认四个都回应）。后端先从 TiDB case bundle 读取当前 case、customer、merchant、graph、memory、policy 等工具观测，再把 analyst task + agent role + tool observations 交给本地 `codex exec` 生成 agent response，最后把 analyst message + agent replies 作为 `CaseEvent[]` 返回给前端实时追加到 timeline。
+
+如果未配置或无法调用 Codex CLI，本地服务会退回 deterministic skill fallback，保证离线 demo 仍可运行。`GET /api/health` 会明确返回当前 `agentRuntime`，用于区分 `codex-cli` 和 `deterministic-fallback`。
+
 ## TiDB Backend Storage 叙事
 
 UI 需要把 TiDB 从“后台数据库”变成 demo 中可见的业务基础设施。推荐把它讲成三类能力：
@@ -277,7 +317,7 @@ UI 需要把 TiDB 从“后台数据库”变成 demo 中可见的业务基础�
 
 ## TiDB 接入
 
-当前已经完成前两步：
+当前已经完成：
 
 1. 本地 JSON/CSV 导入 TiDB：
    - `npm run import:tidb`
@@ -289,10 +329,36 @@ UI 需要把 TiDB 从“后台数据库”变成 demo 中可见的业务基础�
    - TiDB mode 使用 SQL join 读取 case bundle。
    - `analyze()` 输入保持不变。
 
-3. 后续可以继续做 Agent 输出写回：
+3. 新 CLAIMS frontend 通过 Next.js API adapter 接入 legacy API / TiDB backend。
+
+4. TiDB schema 已扩展以支持新 frontend 的 timeline / agent status / synthesis / action model：
+   - `case_timeline_events`
+   - `case_agent_status`
+   - `case_synthesis`
+   - `case_actions`
+
+5. 当前 timeline 和 chatbox 已接入 live agent-skill path，可基于当前 TiDB case bundle 生成 agent 输出。
+
+还没有完成：
+
+6. Agent 输出持久写回：
+   - `case_timeline_events`
    - `agent_findings`
+   - `case_synthesis`
+   - `case_actions`
    - `memory_events`
-   - `risk_case.status/action`
+
+推荐顺序：
+
+1. 把 `CASE-2461` / Sarah Chen mock fixture seed 到 TiDB，如果仍需固定截图 case。
+2. 继续扩展真实 API 写回能力，同时保留 MSW 作为离线 demo fallback。
+
+## Project Skills
+
+为了让后续 agent 操作更稳定，仓库中新增两个 project-local skills：
+
+- `skills/risk-demo-data-generation/SKILL.md`：定义生成 PaySim-style CSV、导入 TiDB、验证 case queue / workflow tables 的标准流程。
+- `skills/risk-demo-agent-configuration/SKILL.md`：定义真实 agent runtime 的配置和验证流程。当前可用 provider 是 Codex CLI；Claude Code 或其他本地 CLI 可以按同样的 strict JSON contract 增加 adapter 后接入。
 
 ## Demo 叙事顺序
 

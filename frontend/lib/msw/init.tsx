@@ -18,13 +18,20 @@ function ensureWorker(): Promise<void> {
   return startPromise;
 }
 
-// Gates the app on MSW being ready. Phase 1 always runs MSW (there is no
-// real backend yet) so this provider has no NODE_ENV gating. When the
-// backend is real, swap this to start MSW only in development.
+function shouldUseMSW(): boolean {
+  return ["1", "true", "yes"].includes(
+    (process.env.NEXT_PUBLIC_USE_MSW || "").toLowerCase(),
+  );
+}
+
+// Gates the app on MSW only when explicitly requested. The default path
+// uses the Next.js API adapter, which reads real data from the backend
+// storage service on port 8787.
 export function MSWProvider({ children }: { children: ReactNode }) {
-  const [ready, setReady] = useState(false);
+  const [ready, setReady] = useState(() => !shouldUseMSW());
 
   useEffect(() => {
+    if (!shouldUseMSW()) return;
     let cancelled = false;
     ensureWorker().then(() => {
       if (!cancelled) setReady(true);

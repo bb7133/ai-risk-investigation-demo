@@ -1,6 +1,6 @@
-// Thin fetch wrapper. Every backend call in the app routes through here.
-// During Phase 1 (and probably Phase 2), MSW intercepts these and returns
-// hardcoded mock data — no real backend is reached.
+// Thin fetch wrapper. Browser calls stay on `/api/*`; Next.js route
+// handlers adapt that contract to the real backend storage service.
+// Set NEXT_PUBLIC_USE_MSW=true to switch back to the browser mock.
 
 export class ApiError extends Error {
   readonly status: number;
